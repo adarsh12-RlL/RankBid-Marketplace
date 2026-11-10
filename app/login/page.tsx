@@ -60,12 +60,7 @@ function Form() {
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || "Failed to generate OTP.");
       setOtpSent(true);
-      if (d.devCode) {
-        setOtp(String(d.devCode));
-        setOtpMessage(`Instant Code: ${d.devCode} (Auto-filled below). You can now click Create account!`);
-      } else {
-        setOtpMessage(d.message || "Verification code dispatched. Please check your inbox (and spam folder).");
-      }
+      setOtpMessage(d.message || `Verification code has been sent to ${email}. Please check your inbox (and spam folder).`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to send code.");
     } finally {
@@ -80,6 +75,11 @@ function Form() {
 
     if (mode === "register" && email.trim().toLowerCase() === "adarshgokhe.12@gmail.com") {
       setError("adarshgokhe.12@gmail.com is the master Owner Admin account. No registration needed. Click 'Already have an account? Sign in' below to log in directly.");
+      setBusy(false);
+      return;
+    }
+    if (mode === "register" && !otp.trim()) {
+      setError("Please enter the 6-digit verification code sent to your email.");
       setBusy(false);
       return;
     }
@@ -207,7 +207,7 @@ function Form() {
             </p>
             {googleTip && (
               <div role="status" aria-live="polite" style={{ background: "#eff6ff", color: "#1e40af", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "10px 12px", fontSize: "12px", marginTop: "8px", lineHeight: "1.5" }}>
-                ✓ <strong>Sign in with Google:</strong> Enter your Gmail address and password below to sign in directly.
+                ✓ <strong>Sign in with Google:</strong> Google 1-Click popup connects automatically once GOOGLE_CLIENT_ID is active in Vercel. Meanwhile, you can enter your email and password below to sign in or register with email OTP!
               </div>
             )}
           </div>

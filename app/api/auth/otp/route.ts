@@ -49,10 +49,12 @@ export async function POST(req: NextRequest) {
           created_at = excluded.created_at;
       `).run(email, otp, expiresAt, now.toISOString());
 
-      // Dispatch real email via Resend API if configured
+      // Dispatch real email via Resend or Brevo API
       const resendApiKey = process.env.RESEND_API_KEY?.trim();
+      const brevoApiKey = process.env.BREVO_API_KEY?.trim();
       let sentViaEmail = false;
-      let resendNotice = "";
+      let emailErrorNotice = "";
+
       if (resendApiKey) {
         try {
           const emailRes = await fetch("https://api.resend.com/emails", {
@@ -68,11 +70,11 @@ export async function POST(req: NextRequest) {
               html: `
                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
                   <h2 style="color: #0f172a; margin-top: 0;">RankBid Verification</h2>
-                  <p style="color: #475569; font-size: 14px;">Use the 6-digit code below to complete your account registration:</p>
+                  <p style="color: #475569; font-size: 14px;">Use the 6-digit verification code below to complete your RankBid account registration:</p>
                   <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; text-align: center; margin: 24px 0;">
                     <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0284c7; font-family: monospace;">${otp}</span>
                   </div>
-                  <p style="color: #64748b; font-size: 12px;">This code will expire in 10 minutes. If you did not request this code, please ignore this email.</p>
+                  <p style="color: #64748b; font-size: 12px;">This code expires in 10 minutes. If you did not request this verification code, please ignore this email.</p>
                 </div>
               `,
             }),
@@ -82,12 +84,49 @@ export async function POST(req: NextRequest) {
           } else {
             const errBody = await emailRes.json().catch(() => ({}));
             console.warn("[Resend API Error]:", emailRes.status, errBody);
-            if (errBody?.message) {
-              resendNotice = errBody.message;
-            }
+            emailErrorNotice = errBody?.message || `Resend dispatch failed (HTTP ${emailRes.status})`;
           }
-        } catch (emailErr) {
+        } catch (emailErr: any) {
           console.warn("[Email Dispatch Warning]:", emailErr);
+          emailErrorNotice = emailErr?.message || "Failed to reach email service";
+        }
+      }
+
+      // Fallback: If Brevo is configured and Resend wasn't successful
+      if (!sentViaEmail && brevoApiKey) {
+        try {
+          const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "api-key": brevoApiKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sender: { name: "RankBid", email: process.env.SENDER_EMAIL || "auth@rankbid.com" },
+              to: [{ email }],
+              subject: `${otp} is your RankBid verification code`,
+              htmlContent: `
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                  <h2 style="color: #0f172a; margin-top: 0;">RankBid Verification</h2>
+                  <p style="color: #475569; font-size: 14px;">Use the 6-digit verification code below to complete your RankBid account registration:</p>
+                  <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; text-align: center; margin: 24px 0;">
+                    <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0284c7; font-family: monospace;">${otp}</span>
+                  </div>
+                  <p style="color: #64748b; font-size: 12px;">This code expires in 10 minutes. If you did not request this verification code, please ignore this email.</p>
+                </div>
+              `,
+            }),
+          });
+          if (brevoRes.ok) {
+            sentViaEmail = true;
+            emailErrorNotice = "";
+          } else {
+            const errBody = await brevoRes.json().catch(() => ({}));
+            emailErrorNotice = errBody?.message || `Brevo dispatch failed (HTTP ${brevoRes.status})`;
+          }
+        } catch (brevoErr: any) {
+          console.warn("[Brevo Dispatch Warning]:", brevoErr);
+          emailErrorNotice = brevoErr?.message || "Failed to reach Brevo email service";
         }
       }
 
@@ -99,20 +138,13 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const isDev = process.env.NODE_ENV !== "production" || process.env.ENABLE_DEV_OTP === "true";
-      if (isDev) {
-        return NextResponse.json({
-          success: true,
-          deliveredToEmail: false,
-          devCode: otp,
-          message: `Verification code: ${otp} ${resendNotice ? `(Test mode: code is ${otp}).` : ""}`,
-        });
-      }
-
+      // If email delivery could not be completed, report the exact reason honestly
       return NextResponse.json({
         success: false,
-        error: "Verification email could not be delivered to this address. Please try again later.",
-      }, { status: 503 });
+        error: emailErrorNotice
+          ? `Email delivery issue: ${emailErrorNotice}. If using Resend free testing, emails can only be sent to the owner's verified address until a domain is verified at resend.com/domains.`
+          : "Email service is not yet configured on this server. Please contact support or sign in with Google.",
+      }, { status: 400 });
     }
 
     if (action === "verify") {

@@ -35,6 +35,12 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tools",
+    "official-site",
+    "AI website nova",
+    "scratch",
+    "storage-backups",
+    "backups"
   ]
 }
