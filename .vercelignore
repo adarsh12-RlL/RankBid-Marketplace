@@ -1,0 +1,11 @@
+official-site/
+storage-backups/
+data/
+*.db
+*.db-wal
+*.db-shm
+backups/
+.git/
+node_modules/
+.next/
+.env*.local

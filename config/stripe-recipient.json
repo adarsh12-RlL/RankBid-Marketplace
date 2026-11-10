@@ -1,0 +1,14 @@
+{
+  "account_id": "acct_1UQnIzJc5Boa9I3i",
+  "dashboard_url": "https://connect.stripe.com/app/express#acct_1UQnIzJc5Boa9I3i/balance",
+  "connection_state": "pending_verification",
+  "requested_presentment_currencies": [
+    "usd",
+    "inr"
+  ],
+  "account_country": null,
+  "platform_access_verified": false,
+  "charges_enabled_verified": false,
+  "payouts_enabled_verified": false,
+  "note": "User-selected Express account reference. This is not a bank account connection or payment routing authorization. Verify the controlling platform and account capabilities before implementing any live charge flow."
+}

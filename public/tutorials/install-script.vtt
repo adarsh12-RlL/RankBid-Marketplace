@@ -1,0 +1,34 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:06.867
+Open the setup flow for the website you own and use the snippet generated for that exact site.
+
+00:00:06.867 --> 00:00:12.882
+A public site identifier tells RankLens which site sent an event; it is not a password.
+
+00:00:12.882 --> 00:00:16.642
+Do not copy a server token into this browser script.
+
+00:00:16.842 --> 00:00:22.269
+Paste the script into the head of every page you want to measure.
+
+00:00:22.269 --> 00:00:27.278
+In a framework, the shared root layout is usually the right place.
+
+00:00:27.278 --> 00:00:31.453
+For a tag manager, use the documented custom HTML option.
+
+00:00:31.453 --> 00:00:35.628
+Keep the configured domain and the installed site ID consistent.
+
+00:00:35.828 --> 00:00:43.729
+Deploy the site, open a page on the configured HTTPS domain, and refresh the matching report.
+
+00:00:43.729 --> 00:00:46.693
+Give the request time to arrive.
+
+00:00:46.693 --> 00:00:54.594
+If it remains empty, confirm the site ID, domain, content security policy, and browser network request.
+
+00:00:54.594 --> 00:00:59.039
+Local preview traffic is not proof of production tracking.

@@ -1,0 +1,40 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:07.377
+Start with the selected website, then choose a period such as today or the last 24 hours.
+
+00:00:07.377 --> 00:00:12.941
+Use the interval menu to group activity by hour or another available granularity.
+
+00:00:12.941 --> 00:00:19.361
+Compare periods only after the report has data; zero means no matching visits were recorded.
+
+00:00:19.561 --> 00:00:27.979
+Use channel, referrer, campaign, page, entry page, browser, operating system, and device panels to narrow the same time window.
+
+00:00:27.979 --> 00:00:31.080
+Selecting a row adds a report filter.
+
+00:00:31.080 --> 00:00:35.953
+Remove the active filter to return to the full site view.
+
+00:00:36.153 --> 00:00:38.808
+Realtime activity updates as events arrive.
+
+00:00:38.808 --> 00:00:45.002
+Country aggregates are available only when a trusted hosting proxy provides a country code.
+
+00:00:45.002 --> 00:00:51.638
+The report does not request browser GPS and does not claim an exact person's location.
+
+00:00:51.638 --> 00:00:56.504
+If the map is empty, check whether geo headers are configured.
+
+00:00:56.704 --> 00:01:02.617
+A share link can expose the selected public report to anyone who receives it.
+
+00:01:02.617 --> 00:01:05.996
+Check the date range and filters before sharing.
+
+00:01:05.996 --> 00:01:12.331
+Keep private account pages and server keys out of public links, posts, screenshots, and videos.

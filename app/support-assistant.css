@@ -1,0 +1,342 @@
+.rb-support-root {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 10000;
+  color: #f5f8fc;
+  color-scheme: dark;
+  font-family: inherit;
+}
+
+.rb-support-launcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 58px;
+  height: 56px;
+  padding: 0 18px;
+  border: 1px solid #ff9a73;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f47a4c, #dc5934);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  box-shadow: 0 8px 26px #06101dcc;
+  cursor: pointer;
+  transition: transform .16s, box-shadow .16s;
+}
+
+.rb-support-launcher:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px #06101de8;
+}
+
+.rb-support-panel button:focus-visible,
+.rb-support-panel a:focus-visible,
+.rb-support-panel input:focus-visible,
+.rb-support-panel textarea:focus-visible,
+.rb-support-launcher:focus-visible {
+  outline: 2px solid #f47a4c;
+  outline-offset: 3px;
+}
+
+.rb-support-panel {
+  position: fixed;
+  right: 22px;
+  bottom: 90px;
+  display: flex;
+  width: min(420px, calc(100vw - 24px));
+  height: min(660px, calc(100vh - 112px));
+  height: min(660px, calc(100dvh - 112px));
+  min-height: 360px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #345575;
+  border-radius: 20px;
+  background: #0b1522;
+  box-shadow: 0 20px 70px #020711e6;
+}
+
+.rb-support-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #2d4966;
+  background: linear-gradient(110deg, #101e2e, #142b43 74%, #29201f);
+}
+
+.rb-support-icon {
+  display: flex;
+  width: 39px;
+  height: 39px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #456b8d;
+  border-radius: 12px;
+  background: #12243a;
+  color: #f58a60;
+}
+
+.rb-support-header h2 {
+  margin: 0;
+  color: #f5f8fc;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.rb-support-header p {
+  margin: 3px 0 0;
+  color: #b6c7d8;
+  font-size: 11px;
+}
+
+.rb-support-close {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border: 1px solid #3b5a77;
+  border-radius: 10px;
+  background: #13283d;
+  color: #f5f8fc;
+  cursor: pointer;
+}
+
+.rb-support-close:hover {
+  border-color: #f47a4c;
+  color: #ff9b77;
+}
+
+.rb-support-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  padding: 15px;
+  background: radial-gradient(ellipse at top right, #142b43 0, transparent 54%), #0b1522;
+  scroll-behavior: smooth;
+}
+
+.rb-support-message {
+  max-width: 94%;
+  padding: 11px 13px;
+  border: 1px solid #345575;
+  border-radius: 15px;
+  background: #12243a;
+  color: #f0f5fa;
+  font-size: 12px;
+  line-height: 1.65;
+  box-shadow: 0 3px 12px #0207114a;
+}
+
+.rb-support-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.rb-support-answer-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.rb-support-answer-links a{display:inline-flex;align-items:center;gap:5px;min-height:29px;padding:6px 9px;border:1px solid #42617d;border-radius:999px;background:#14283c;color:#d7eafb;font-size:10px;font-weight:700;text-decoration:none}.rb-support-answer-links a:hover{border-color:#ef946d;background:#1c334a;color:#fff}
+
+.rb-support-visitor {
+  align-self: flex-end;
+  border-color: #fa916b;
+  background: #d95f3a;
+  color: #fff;
+}
+
+.rb-support-assistant { align-self: flex-start; }
+.rb-support-thinking p { color: #b5c8da; font-style: italic; }
+
+.rb-support-setup {
+  border-color: #d97952;
+  border-left: 3px solid #f47a4c;
+  background: #18283a;
+}
+
+.rb-support-setup button,
+.rb-support-prompts button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #496b8a;
+  border-radius: 999px;
+  background: #152b42;
+  padding: 7px 10px;
+  color: #dceaf6;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rb-support-setup button { margin-top: 9px; }
+.rb-support-setup button:hover,
+.rb-support-prompts button:hover { border-color: #f47a4c; color: #ffac8b; }
+.rb-support-offer-contact{display:inline-flex;align-items:center;gap:5px;margin-top:9px;border:1px solid #496b8a;border-radius:999px;background:#152b42;padding:7px 10px;color:#dceaf6;font-size:10px;font-weight:700;cursor:pointer}
+.rb-support-offer-contact:hover{border-color:#f47a4c;color:#ffac8b}
+
+.rb-support-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 5px;
+}
+
+.rb-support-prompts > span {
+  width: 100%;
+  color: #b6c7d8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.rb-support-contact {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #3c5c7a;
+  border-radius: 14px;
+  background: #101f30;
+}
+
+.rb-support-contact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #f2f6fa;
+  font-size: 12px;
+}
+
+.rb-support-contact-head button {
+  display: flex;
+  width: 27px;
+  height: 27px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3c5c7a;
+  border-radius: 8px;
+  background: #142940;
+  color: #e9f1f8;
+  cursor: pointer;
+}
+
+.rb-support-contact > p { margin: 0; color: #bacadb; font-size: 10px; line-height: 1.55; }
+
+.rb-support-contact textarea,
+.rb-support-contact input,
+.rb-support-ask input {
+  width: 100%;
+  border: 1px solid #3b5a77;
+  border-radius: 10px;
+  background: #0b1725;
+  padding: 10px;
+  color: #f5f8fc;
+  font: inherit;
+  font-size: 11px;
+  outline: none;
+}
+
+.rb-support-contact textarea { min-height: 72px; resize: vertical; line-height: 1.5; }
+.rb-support-contact textarea::placeholder,
+.rb-support-contact input::placeholder,
+.rb-support-ask input::placeholder { color: #9fb3c6; opacity: 1; }
+
+.rb-support-send {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #ff9a73;
+  border-radius: 10px;
+  background: #e96a40;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.rb-support-send:hover { background: #f47a4c; }
+.rb-support-send:disabled { cursor: wait; opacity: .65; }
+.rb-support-error { color: #ff9b77 !important; }
+
+.rb-support-ticket {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  border: 1px solid #496b8a;
+  border-radius: 10px;
+  background: #152b42;
+  padding: 9px 11px;
+  color: #dceaf6;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rb-support-footer {
+  display: grid;
+  gap: 8px;
+  padding: 11px 13px 10px;
+  border-top: 1px solid #2d4966;
+  background: #101c2b;
+}
+
+.rb-support-contact-link {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #ff9b77;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.rb-support-ask { display: flex; align-items: center; gap: 7px; }
+.rb-support-ask input { height: 42px; border-radius: 12px; }
+
+.rb-support-ask button {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ff9a73;
+  border-radius: 12px;
+  background: #e96a40;
+  color: #fff;
+  cursor: pointer;
+}
+
+.rb-support-ask button:hover { background: #f47a4c; }
+.rb-support-ask button:disabled { cursor: wait; opacity: .65; }
+.rb-support-footer small { color: #b3c3d2; font-size: 9px; line-height: 1.5; }
+.rb-support-footer small a { color: #ff9b77; text-underline-offset: 2px; }
+
+@media (max-width: 520px) {
+  .rb-support-root { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  .rb-support-panel { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); width: auto; bottom: calc(max(78px, env(safe-area-inset-bottom)) + 12px); height: min(620px, calc(100vh - 96px)); height: min(620px, calc(100dvh - 96px)); min-height: 340px; }
+  .rb-support-launcher { height: 52px; min-width: 52px; }
+}
+
+@media (max-height: 500px) {
+  .rb-support-panel { height: calc(100vh - 92px); height: calc(100dvh - 92px); min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb-support-launcher { transition: none; }
+  .rb-support-messages { scroll-behavior: auto; }
+}

@@ -1,0 +1,4 @@
+Made with Natural Earth. Map boundaries are derived from the public-domain Natural Earth 1:110m admin-0 country dataset.
+License and terms: https://www.naturalearthdata.com/about/terms-of-use/
+Source: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson
+Antarctica is omitted for the analytics world view. Names and boundaries follow the source cartographic dataset and do not indicate a position on territorial status.

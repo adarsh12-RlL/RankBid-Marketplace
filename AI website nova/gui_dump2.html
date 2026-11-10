@@ -1,0 +1,2856 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content, viewport-fit=cover">
+  <title>Nova AI - Cybernetic Assistant</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;400;600;800&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg: #030712;
+      --grid-line: rgba(0, 240, 255, 0.04);
+      --panel-bg: rgba(10, 15, 30, 0.7);
+      --border-glow: rgba(0, 240, 255, 0.15);
+      --neon-cyan: #00f0ff;
+      --neon-violet: #8b5cf6;
+      --neon-emerald: #10b981;
+      --neon-pink: #ec4899;
+      --text-main: #e3e9f3;
+      --text-muted: #94a3b8;
+    }
+
+    body.theme-attractive {
+      color-scheme: dark;
+      --bg: #030712;
+      --grid-line: rgba(0, 240, 255, 0.04);
+      --panel-bg: rgba(10, 15, 30, 0.7);
+      --border-glow: rgba(0, 240, 255, 0.15);
+      --neon-cyan: #00f0ff;
+      --neon-violet: #8b5cf6;
+      --neon-emerald: #10b981;
+      --neon-pink: #ec4899;
+      --text-main: #e3e9f3;
+      --text-muted: #94a3b8;
+    }
+    body.theme-clean {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --grid-line: rgba(255, 255, 255, 0.02);
+      --panel-bg: rgba(30, 41, 59, 0.6);
+      --border-glow: rgba(148, 163, 184, 0.12);
+      --neon-cyan: #38bdf8;
+      --neon-violet: #6366f1;
+      --neon-emerald: #34d399;
+      --neon-pink: #f472b6;
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+    }
+    body.theme-midnight {
+      color-scheme: dark;
+      --bg: #020205;
+      --grid-line: rgba(139, 92, 246, 0.02);
+      --panel-bg: rgba(5, 5, 12, 0.85);
+      --border-glow: rgba(139, 92, 246, 0.25);
+      --neon-cyan: #d946ef;
+      --neon-violet: #8b5cf6;
+      --neon-emerald: #10b981;
+      --neon-pink: #ec4899;
+      --text-main: #f3e8ff;
+      --text-muted: #a78bfa;
+    }
+    body.theme-emerald {
+      color-scheme: dark;
+      --bg: #020804;
+      --grid-line: rgba(16, 185, 129, 0.03);
+      --panel-bg: rgba(6, 15, 9, 0.8);
+      --border-glow: rgba(16, 185, 129, 0.3);
+      --neon-cyan: #10b981;
+      --neon-violet: #059669;
+      --neon-emerald: #34d399;
+      --neon-pink: #a7f3d0;
+      --text-main: #e6f4ea;
+      --text-muted: #6ee7b7;
+    }
+    body.theme-light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --grid-line: rgba(15, 23, 42, 0.03);
+      --panel-bg: rgba(255, 255, 255, 0.85);
+      --border-glow: rgba(15, 23, 42, 0.1);
+      --neon-cyan: #0284c7;
+      --neon-violet: #4f46e5;
+      --neon-emerald: #16a34a;
+      --neon-pink: #db2777;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+    }
+    body.theme-contrast {
+      color-scheme: dark;
+      --bg: #000000;
+      --grid-line: rgba(255, 255, 255, 0.08);
+      --panel-bg: #000000;
+      --border-glow: #ffffff;
+      --neon-cyan: #00ffff;
+      --neon-violet: #ffff00;
+      --neon-emerald: #00ff00;
+      --neon-pink: #ff00ff;
+      --text-main: #ffffff;
+      --text-muted: #cccccc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Cinematic Mesh Background */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Subtle rolling scanline */
+    body::after {
+      content: '';
+      position: absolute;
+      top: -100%; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(to bottom, transparent, rgba(0, 240, 255, 0.05), transparent);
+      z-index: 2;
+      pointer-events: none;
+      animation: scanline 8s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { top: -100%; }
+      100% { top: 100%; }
+    }
+
+    /* STATE 1: BOOT SCREEN */
+    .boot-screen {
+      position: fixed; inset: 0;
+      background: #030712;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .boot-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .boot-ring {
+      position: absolute;
+      border: 2px dashed var(--neon-cyan);
+      border-radius: 50%;
+      animation: spin 10s linear infinite;
+      opacity: 0.6;
+    }
+    .boot-ring-1 { width: 300px; height: 300px; border-color: var(--neon-cyan); border-width: 1px; }
+    .boot-ring-2 { width: 240px; height: 240px; border-color: var(--neon-violet); border-style: dotted; animation-direction: reverse; }
+    .boot-ring-3 { width: 180px; height: 180px; border-color: var(--neon-cyan); }
+
+    .boot-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 32px;
+      letter-spacing: 6px;
+      color: #fff;
+      text-shadow: 0 0 20px var(--neon-cyan);
+      z-index: 20;
+      margin-bottom: 8px;
+    }
+
+    .boot-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--neon-cyan);
+      letter-spacing: 2px;
+      margin-top: 10px;
+      z-index: 20;
+      opacity: 0.8;
+      text-transform: uppercase;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* DASHBOARD CONTAINER */
+    .dashboard-grid {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      z-index: 5;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    /* Floating Panel Styling (Glassmorphism) */
+    .holo-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .holo-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    }
+
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .panel-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+    }
+
+    /* LEFT COLUMN (Diagnostics & rolling logs) */
+    .left-column {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .diagnostics-card {
+      flex: 1;
+    }
+    
+    .diag-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      font-size: 13px;
+    }
+    
+    .diag-label { color: var(--text-muted); }
+    .diag-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 600;
+    }
+    .diag-val.secure { color: var(--neon-emerald); text-shadow: 0 0 10px rgba(16,185,129,0.3); }
+
+    .terminal-card {
+      flex: 1.5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-stream {
+      flex: 1;
+      padding: 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .terminal-stream::-webkit-scrollbar { width: 4px; }
+    .terminal-stream::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.2); }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .log-time { color: var(--neon-violet); }
+    .log-msg { color: var(--text-main); }
+
+    /* CENTER COLUMN (Neural visualizer orb) */
+    .center-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    #orbCanvas {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .orb-mic-container {
+      position: relative;
+      z-index: 20;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.5s ease;
+      cursor: pointer;
+    }
+
+    /* Core Micro Button */
+    .orb-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.4), rgba(0, 240, 255, 0.05));
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 24px;
+      transition: all 0.4s ease;
+    }
+    .orb-btn:hover {
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.8);
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.6), rgba(0, 240, 255, 0.1));
+      transform: scale(1.05);
+    }
+    
+    .status-text-panel {
+      position: absolute;
+      bottom: 80px;
+      left: 0; right: 0;
+      text-align: center;
+      z-index: 20;
+      padding: 0 24px;
+    }
+    
+    .status-text-panel h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    .status-text-panel p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .voice-controls-row {
+      position: absolute;
+      top: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 30;
+    }
+    
+    .voice-controls-row select, .voice-controls-row button {
+      background: rgba(10, 15, 30, 0.8);
+      border: 1px solid rgba(0,240,255,0.2);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* RIGHT COLUMN (Holographic Chat Pane) */
+    .right-column {
+      width: 460px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .chat-actions button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+    }
+    .chat-actions button:hover { color: var(--neon-cyan); background: rgba(255,255,255,0.05); }
+
+    .chat-pane {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chat-pane::-webkit-scrollbar { width: 6px; }
+    .chat-pane::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.15); border-radius: 3px; }
+
+    /* Custom Message Styling */
+    .msg {
+      max-width: 85%;
+      font-size: 14px;
+      line-height: 1.5;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
+
+    .msg.you {
+      align-self: flex-end;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 18px 18px 2px 18px;
+      padding: 10px 14px;
+      color: #fff;
+    }
+
+    .msg.nova {
+      align-self: flex-start;
+      width: 100%;
+    }
+
+    .nova-avatar-row {
+      display: flex;
+      gap: 12px;
+    }
+    .nova-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-violet));
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    .nova-avatar svg { width: 14px; height: 14px; fill: #fff; }
+    .msg-content { flex: 1; min-width: 0; }
+
+    .msg pre {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 240, 255, 0.1);
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    .msg code { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #a5f3fc; }
+    
+    .msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    /* Floating input zone */
+    .chat-input-container {
+      padding: 16px;
+      border-top: 1px solid rgba(0, 240, 255, 0.1);
+    }
+    
+    .chat-composer-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .chat-composer-box textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      max-height: 100px;
+      padding: 8px 0;
+      font-family: inherit;
+    }
+    .chat-composer-box textarea::placeholder { color: var(--text-muted); }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { color: var(--neon-cyan); background: rgba(0, 240, 255, 0.1); }
+    .icon-btn.send-btn { color: var(--neon-cyan); }
+
+    /* Floating settings panels (Holographic Modal Overlays) */
+    .holo-drawer {
+      position: fixed;
+      top: 16px; bottom: 16px; right: -400px;
+      width: 360px;
+      background: rgba(10, 15, 30, 0.95);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .holo-drawer.active {
+      right: 16px;
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    /* Toggle items in settings panel */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .toggle-row label { font-size: 13px; color: var(--text-main); }
+    
+    /* MODALS & OVERLAYS */
+    .modal {
+      position: fixed; inset: 0; display: none; place-items: center;
+      background: rgba(3, 7, 18, 0.85); z-index: 200; backdrop-filter: blur(8px);
+    }
+    .modal.active { display: grid; }
+    .modal-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+      padding: 24px;
+      border-radius: 20px;
+      width: 440px;
+      max-width: 90%;
+    }
+    .modal-card h2 { font-family: 'Share Tech Mono', monospace; color: var(--neon-cyan); font-size: 18px; margin-bottom: 12px; }
+    .modal-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-actions button {
+      padding: 8px 20px; border-radius: 16px; border: 1px solid var(--neon-cyan); cursor: pointer; font-size: 13px; background: transparent; color: var(--neon-cyan);
+    }
+    .modal-actions button.primary { background: var(--neon-cyan); color: #000; }
+    .modal-actions button:hover { background: rgba(0,240,255,0.1); }
+
+    /* Reader controls */
+    .reader-float-bar {
+      position: fixed; bottom: 24px; left: 24px;
+      background: rgba(10, 15, 30, 0.95);
+      border: 1px solid var(--neon-cyan);
+      padding: 8px 16px;
+      border-radius: 20px;
+      z-index: 150;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+    .reader-float-bar.active { display: flex; }
+
+    /* Dynamic state: voice-active mode */
+    body.voice-active .left-column {
+      transform: translateX(-340px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    body.voice-active .right-column {
+      transform: translateX(480px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    body.voice-active .orb-mic-container {
+      transform: scale(1.6);
+    }
+
+    /* Process complete overlay checkmark */
+    .process-overlay {
+      position: absolute;
+      top: 60px; left: 50%; transform: translateX(-50%);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.5s ease;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--neon-emerald);
+      border-radius: 20px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .process-overlay.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(20px);
+    }
+    .checkmark-lbl {
+      color: var(--neon-emerald);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Hide standard details */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="theme-attractive booting">
+
+  <!-- STATE 1: BOOT SCREEN OVERLAY -->
+  <div id="boot-overlay" class="boot-screen">
+    <div class="boot-container">
+      <div class="boot-ring boot-ring-1"></div>
+      <div class="boot-ring boot-ring-2"></div>
+      <div class="boot-ring boot-ring-3"></div>
+      <div class="boot-logo">NOVA AI</div>
+      <div class="boot-status">Initializing Neural Core...</div>
+    </div>
+  </div>
+
+  <!-- PROCESS SUCCESS OVERLAY -->
+  <div id="process-overlay" class="process-overlay">
+    <span class="checkmark-lbl">✓ PROCESS COMPLETE</span>
+  </div>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <div class="dashboard-grid">
+
+    <!-- LEFT COLUMN: System diagnostic readings & rolling console logs -->
+    <div class="left-column">
+      
+      <!-- Core diagnostics panel -->
+      <div class="holo-panel diagnostics-card">
+        <div class="panel-header">
+          <div class="panel-title">⚙ Core Diagnostics</div>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">Gemma Core Version</span>
+          <span class="diag-val">Gemma:2b-instruct</span>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">Security Shield</span>
+          <span class="diag-val secure">ACTIVE</span>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">Firewall State</span>
+          <span class="diag-val secure">SECURED</span>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">Active Connection</span>
+          <span class="diag-val" id="status">Online</span>
+        </div>
+      </div>
+
+      <!-- Real-time Console Logs panel -->
+      <div class="holo-panel terminal-card">
+        <div class="panel-header">
+          <div class="panel-title">📟 Console Data Feed</div>
+        </div>
+        <div class="terminal-stream" id="terminal-log-stream">
+          <!-- Populated dynamically via logTerminal() -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTER COLUMN: Pulse animation area -->
+    <div class="center-column">
+      <canvas id="orbCanvas"></canvas>
+      
+      <!-- Microphone triggers -->
+      <div class="orb-mic-container" id="mic">
+        <div class="orb-btn">🎤</div>
+      </div>
+
+      <div class="status-text-panel">
+        <h1 id="prompt">Welcome, operator.</h1>
+        <p id="sub">Click microphone or type command below to query Nova.</p>
+      </div>
+
+      <!-- Helper hidden inputs for original scripts integrations -->
+      <div class="voice-controls-row hidden">
+        <select id="voiceSelect"><option value="">Default Voice</option></select>
+        <button type="button" id="testVoice">Test TTS</button>
+        <button type="button" id="voiceButton">Toggle Mode</button>
+        <button type="button" id="desktopMic">Desktop Mic</button>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Holographic conversation view -->
+    <div class="holo-panel right-column">
+      <div class="chat-header">
+        <div class="panel-title">💬 Cybernetic Core Chat</div>
+        <div class="chat-actions">
+          <button type="button" id="newChatButton" title="New Session">➕</button>
+          <button type="button" id="historyToggle" title="Show History">📜</button>
+          <button type="button" id="settingsToggle" title="Nova Customizations">⚙</button>
+          <button type="button" id="exportChatButton" title="Export Session">📤</button>
+          <button type="button" id="chatHelpButton" title="Help">❓</button>
+        </div>
+      </div>
+
+      <div class="chat-pane" id="chat">
+        <!-- Messages populate here -->
+      </div>
+
+      <!-- Composer input fields -->
+      <div class="chat-input-container">
+        <div class="chat-composer-box">
+          <button type="button" class="icon-btn" id="attachFilesButton">📎</button>
+          <textarea id="text" placeholder="Command parameters..." rows="1"></textarea>
+          <button type="button" class="icon-btn" id="micSmall">🎤</button>
+          <button type="button" class="icon-btn send-btn" id="sendButton">▶</button>
+        </div>
+        
+        <!-- Media Uploader tools container -->
+        <div class="media-tools-overlay hidden" id="mediaToolsOverlay" style="margin-top:8px; display:flex; gap:6px;">
+          <input type="text" id="mediaPrompt" placeholder="Visual task directives..." style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(0,240,255,0.2); color:#fff; font-size:12px; padding:4px 8px; border-radius:8px;">
+          <button type="button" id="mediaRun" style="background:var(--neon-cyan); border:none; color:#000; font-size:11px; padding:4px 10px; border-radius:8px; cursor:pointer;">Analyze</button>
+        </div>
+
+        <!-- Hidden modes toggle checklist for composer menu functionality -->
+        <div class="hidden">
+          <input type="checkbox" id="planModeToggle">
+          <input type="checkbox" id="pursueGoalToggle">
+          <button type="button" id="composerMenuButton"></button>
+          <div id="composerToolbox"></div>
+          <button type="button" id="pluginsButton"></button>
+          <button type="button" id="permissionsButton"></button>
+          <input type="file" id="mediaFile" multiple>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FLOATING LOCK SCREEN -->
+  <div class="lock-screen modal" id="lockScreen">
+    <div class="lock-card modal-card">
+      <h2>Nova Crypt-Lock</h2>
+      <p id="lockMessage">Passcode credential verification required</p>
+      <input type="password" id="pinInput" placeholder="••••">
+      <div class="modal-actions">
+        <button type="button" id="unlockButton" class="primary">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING SETTINGS DRAWER -->
+  <div class="holo-drawer" id="settingsPanel">
+    <div class="panel-header">
+      <div class="panel-title">🔧 Feature Modules</div>
+      <button type="button" class="icon-btn" id="settingsClose">✕</button>
+    </div>
+    <div class="drawer-body" id="featureSettingsList">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- FLOATING CHAT HISTORY DRAWER -->
+  <div class="holo-drawer" id="sidebar" style="left: -400px; right: auto; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+    <div class="panel-header">
+      <div class="panel-title">📜 Saved Transcripts</div>
+      <button type="button" class="icon-btn" id="sidebarMenuBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <button type="button" id="clearHistory" style="width:100%; padding:8px; border:1px solid rgba(239, 68, 68, 0.4); background:rgba(239,68,68,0.1); color:#fca5a5; font-size:12px; border-radius:8px; cursor:pointer; margin-bottom:12px;">Clear History</button>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- PERMISSION CONFIRMATION MODAL -->
+  <div class="modal" id="permissionModal">
+    <div class="modal-card">
+      <h2>Authorization Query</h2>
+      <p id="permissionText">A component is requesting file operation permissions.</p>
+      <div class="modal-actions">
+        <button type="button" id="permissionAllow" class="primary">Authorize</button>
+        <button type="button" id="permissionCancel" class="secondary">Deny</button>
+        <button type="button" id="permissionClose" class="hidden">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- READER AUDIO CONTROL FLOATING BAR -->
+  <div class="reader-float-bar" id="reader">
+    <div style="font-size:12px; font-family:'Share Tech Mono',monospace; color:var(--neon-cyan);">SPEECH FEED</div>
+    <span id="readerTime" style="font-size:11px; font-family:'Share Tech Mono',monospace;">0:00</span>
+    <input type="range" id="readerProgress" min="0" max="100" value="0" style="width:100px;">
+    <button type="button" class="icon-btn" id="readerPrev">◀◀</button>
+    <button type="button" class="icon-btn" id="readerPlay">▶</button>
+    <button type="button" class="icon-btn" id="readerNext">▶▶</button>
+    <button type="button" class="icon-btn" id="readerStop">■</button>
+    <button type="button" class="icon-btn" id="readerClose">✕</button>
+    <div class="hidden">
+      <button type="button" id="readerShuffle"></button>
+    </div>
+  </div>
+
+  <!-- Hidden triggers -->
+  <button type="button" id="chatPageBtn" class="hidden"></button>
+  <button type="button" id="voicePageBtn" class="hidden"></button>
+  <button type="button" id="topMenuBtn" class="hidden"></button>
+  <span id="brandName" class="hidden">Nova</span>
+
+  <!-- SCRIPT BLOCK -->
+  <script>
+
+    // --- CANVAS ORB VISUALIZER CODE ---
+    class OrbVisualizer {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.state = 'boot'; // boot, idle, listening, thinking, speaking, complete
+        this.time = 0;
+        this.particles = [];
+        this.scale = 1;
+        this.targetScale = 1;
+        this.glow = 0;
+        this.checkmarkProgress = 0;
+        this.laserLines = [];
+        this.setupCanvas();
+        window.addEventListener('resize', () => this.setupCanvas());
+        this.initParticles();
+      }
+
+      setupCanvas() {
+        if (!this.canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.ctx.scale(dpr, dpr);
+        this.width = rect.width;
+        this.height = rect.height;
+      }
+
+      initParticles() {
+        this.particles = [];
+        for (let i = 0; i < 40; i++) {
+          this.particles.push({
+            angle: Math.random() * Math.PI * 2,
+            radius: 50 + Math.random() * 80,
+            speed: 0.01 + Math.random() * 0.02,
+            size: 1 + Math.random() * 2,
+            color: 'rgba(0, 240, 255, 0.6)'
+          });
+        }
+      }
+
+      setState(state) {
+        if (this.state === state) return;
+        this.state = state;
+        this.time = 0;
+        if (state === 'listening') {
+          this.targetScale = 1.3;
+        } else if (state === 'thinking') {
+          this.targetScale = 0.9;
+        } else if (state === 'speaking') {
+          this.targetScale = 1.15;
+        } else if (state === 'complete') {
+          this.targetScale = 1.0;
+          this.checkmarkProgress = 0;
+          this.triggerLaserSweep();
+        } else {
+          this.targetScale = 1.0;
+        }
+      }
+
+      triggerLaserSweep() {
+        this.laserLines = [];
+        // Define terminal points on the side panels to draw laser links to
+        const leftPanel = document.querySelector('.left-column');
+        const rightPanel = document.querySelector('.right-column');
+        if (leftPanel && rightPanel) {
+          const lRect = leftPanel.getBoundingClientRect();
+          const rRect = rightPanel.getBoundingClientRect();
+          this.laserLines = [
+            { sx: this.width/2, sy: this.height/2, tx: lRect.right, ty: lRect.top + 100, progress: 0 },
+            { sx: this.width/2, sy: this.height/2, tx: lRect.right, ty: lRect.bottom - 100, progress: 0 },
+            { sx: this.width/2, sy: this.height/2, tx: rRect.left, ty: rRect.top + 100, progress: 0 },
+            { sx: this.width/2, sy: this.height/2, tx: rRect.left, ty: rRect.bottom - 100, progress: 0 }
+          ];
+        }
+      }
+
+      draw() {
+        if (!this.canvas) return;
+        this.time += 0.05;
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.width, this.height);
+
+        // Smoothly update scale
+        this.scale += (this.targetScale - this.scale) * 0.1;
+
+        const cx = this.width / 2;
+        const cy = this.height / 2;
+        const baseRadius = 70 * this.scale;
+
+        // Background grid nodes (delicate neural mesh)
+        this.drawMesh(ctx, cx, cy);
+
+        if (this.state === 'boot') {
+          this.drawBootHUD(ctx, cx, cy);
+        } else if (this.state === 'idle') {
+          this.drawOrb(ctx, cx, cy, baseRadius, [0, 150, 255]);
+          this.drawOrbits(ctx, cx, cy, baseRadius);
+        } else if (this.state === 'listening') {
+          this.drawOrb(ctx, cx, cy, baseRadius, [255, 0, 150]);
+          this.drawSoundwaves(ctx, cx, cy, baseRadius);
+        } else if (this.state === 'thinking') {
+          this.drawOrb(ctx, cx, cy, baseRadius * 0.8, [0, 240, 255]);
+          this.drawThinkingRings(ctx, cx, cy, baseRadius);
+        } else if (this.state === 'speaking') {
+          this.drawOrb(ctx, cx, cy, baseRadius, [0, 255, 120]);
+          this.drawSpeakingPulse(ctx, cx, cy, baseRadius);
+        } else if (this.state === 'complete') {
+          this.drawOrb(ctx, cx, cy, baseRadius, [16, 185, 129]);
+          this.drawCheckmark(ctx, cx, cy, baseRadius);
+          this.drawLasers(ctx);
+        }
+
+        requestAnimationFrame(() => this.draw());
+      }
+
+      drawMesh(ctx, cx, cy) {
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.03)';
+        ctx.lineWidth = 0.5;
+        // Dotted circle meshes
+        for (let r = 100; r < 400; r += 80) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      drawOrb(ctx, cx, cy, radius, rgb) {
+        ctx.save();
+        
+        // Glow effect
+        const glowRad = radius * (1.5 + Math.sin(this.time * 2) * 0.1);
+        const grad = ctx.createRadialGradient(cx, cy, radius * 0.3, cx, cy, glowRad);
+        grad.addColorStop(0, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.8)`);
+        grad.addColorStop(0.4, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, glowRad, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core plasma blobs
+        ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.15)`;
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          const offset = i * (Math.PI / 1.5);
+          const r1 = radius * (0.8 + Math.sin(this.time + offset) * 0.08);
+          const r2 = radius * (0.8 + Math.cos(this.time * 1.5 + offset) * 0.08);
+          ctx.ellipse(cx, cy, r1, r2, this.time * 0.3 + offset, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      drawOrbits(ctx, cx, cy, radius) {
+        ctx.save();
+        // Draw delicate orbital rings
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 1.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Particles traveling along orbit
+        this.particles.forEach(p => {
+          p.angle += p.speed;
+          const px = cx + Math.cos(p.angle) * p.radius;
+          const py = cy + Math.sin(p.angle) * p.radius;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(px, py, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Outer glow for key particles
+          if (p.size > 2) {
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = '#00f0ff';
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(px, py, p.size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        });
+        ctx.restore();
+      }
+
+      drawSoundwaves(ctx, cx, cy, radius) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 0, 150, 0.3)';
+        ctx.lineWidth = 1.5;
+        
+        // Expanding wave rings
+        for (let i = 0; i < 3; i++) {
+          const waveRad = radius * (1.1 + ((this.time * 0.4 + i * 0.5) % 1.5));
+          const opacity = 1 - ((waveRad - radius) / (radius * 1.5));
+          ctx.strokeStyle = `rgba(255, 0, 150, ${opacity * 0.4})`;
+          ctx.beginPath();
+          ctx.arc(cx, cy, waveRad, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      drawThinkingRings(ctx, cx, cy, radius) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+        ctx.lineWidth = 2;
+
+        // Circular dash rings spinning in opposite directions
+        ctx.beginPath();
+        ctx.setLineDash([20, 15]);
+        ctx.arc(cx, cy, radius * 1.3, this.time * 0.8, this.time * 0.8 + Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.setLineDash([10, 10]);
+        ctx.arc(cx, cy, radius * 1.6, -this.time * 1.2, -this.time * 1.2 + Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawSpeakingPulse(ctx, cx, cy, radius) {
+        ctx.save();
+        // Draw frequency bands in a circle around the core
+        const bands = 60;
+        ctx.strokeStyle = 'rgba(0, 255, 120, 0.5)';
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i < bands; i++) {
+          const angle = (i / bands) * Math.PI * 2;
+          // Generate active talking sound wave profile
+          const waveHeight = 15 * Math.abs(Math.sin(i * 0.3 + this.time * 2.5) * Math.cos(i * 0.1));
+          const startR = radius * 1.1;
+          const endR = startR + waveHeight;
+
+          const sx = cx + Math.cos(angle) * startR;
+          const sy = cy + Math.sin(angle) * startR;
+          const ex = cx + Math.cos(angle) * endR;
+          const ey = cy + Math.sin(angle) * endR;
+
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(ex, ey);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      drawCheckmark(ctx, cx, cy, radius) {
+        ctx.save();
+        this.checkmarkProgress = Math.min(1, this.checkmarkProgress + 0.08);
+
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#10b981';
+
+        // Checkmark drawing points
+        const startX = cx - radius * 0.3;
+        const startY = cy;
+        const midX = cx - radius * 0.05;
+        const midY = cy + radius * 0.25;
+        const endX = cx + radius * 0.35;
+        const endY = cy - radius * 0.2;
+
+        ctx.beginPath();
+        if (this.checkmarkProgress < 0.4) {
+          const p = this.checkmarkProgress / 0.4;
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(startX + (midX - startX) * p, startY + (midY - startY) * p);
+        } else {
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(midX, midY);
+          const p = (this.checkmarkProgress - 0.4) / 0.6;
+          ctx.lineTo(midX + (endX - midX) * p, midY + (endY - midY) * p);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawLasers(ctx) {
+        ctx.save();
+        this.laserLines.forEach(line => {
+          line.progress = Math.min(1, line.progress + 0.04);
+          ctx.strokeStyle = `rgba(0, 240, 255, ${(1 - line.progress) * 0.8})`;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          
+          const curX = line.sx + (line.tx - line.sx) * line.progress;
+          const curY = line.sy + (line.ty - line.sy) * line.progress;
+
+          ctx.beginPath();
+          ctx.moveTo(line.sx, line.sy);
+          ctx.lineTo(curX, curY);
+          ctx.stroke();
+          
+          // Floating data indicator dot
+          ctx.fillStyle = '#00f0ff';
+          ctx.beginPath();
+          ctx.arc(curX, curY, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      drawBootHUD(ctx, cx, cy) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+        ctx.lineWidth = 1;
+        
+        // Concentric scanning rings
+        ctx.beginPath();
+        ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.setLineDash([15, 30]);
+        ctx.arc(cx, cy, 160, this.time * 0.4, this.time * 0.4 + Math.PI * 2);
+        ctx.stroke();
+
+        // Crosshairs
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+        ctx.beginPath();
+        ctx.moveTo(cx - 180, cy); ctx.lineTo(cx - 130, cy);
+        ctx.moveTo(cx + 130, cy); ctx.lineTo(cx + 180, cy);
+        ctx.moveTo(cx, cy - 180); ctx.lineTo(cx, cy - 130);
+        ctx.moveTo(cx, cy + 130); ctx.lineTo(cx, cy + 180);
+        ctx.stroke();
+        
+        ctx.restore();
+      }
+    }
+
+    // Initialize variables & state sync helper
+    window.visualizer = null;
+    window.updateVisualizerState = function() {
+      if (!window.visualizer) return;
+      if (listening || desktopMicWanted) {
+        window.visualizer.setState('listening');
+        document.body.classList.add('voice-active');
+      } else if (sendBusy) {
+        window.visualizer.setState('thinking');
+        document.body.classList.remove('voice-active');
+      } else if (speechBusy || readerActive) {
+        window.visualizer.setState('speaking');
+        document.body.classList.add('voice-active');
+      } else {
+        window.visualizer.setState('idle');
+        document.body.classList.remove('voice-active');
+      }
+    }
+    
+    // Add real-time rolling terminal logs logger
+    window.logTerminal = function(message) {
+      const logger = document.getElementById('terminal-log-stream');
+      if (!logger) return;
+      const row = document.createElement('div');
+      row.className = 'log-line';
+      const timeStr = new Date().toLocaleTimeString();
+      row.innerHTML = `<span class="log-time">[${timeStr}]</span> <span class="log-msg">${message}</span>`;
+      logger.appendChild(row);
+      logger.scrollTop = logger.scrollHeight;
+      
+      // limit lines to 50
+      while (logger.children.length > 50) {
+        logger.removeChild(logger.firstChild);
+      }
+    }
+    
+    // Override send to log commands
+    const originalSend = window.send;
+    // --- END CANVAS ORB VISUALIZER CODE ---
+    
+    const mic = document.getElementById('mic');
+    const voiceButton = document.getElementById('voiceButton');
+    const micSmall = document.getElementById('micSmall');
+    const desktopMic = document.getElementById('desktopMic');
+    const chatPageBtn = document.getElementById('chatPageBtn');
+    const brandName = document.getElementById('brandName');
+    const voicePageBtn = document.getElementById('voicePageBtn');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const testVoice = document.getElementById('testVoice');
+    const powerToggle = document.getElementById('powerToggle');
+    const networkModeToggle = document.getElementById('networkModeToggle');
+    const statusEl = document.getElementById('status');
+    const promptEl = document.getElementById('prompt');
+    const subEl = document.getElementById('sub');
+    const chat = document.getElementById('chat');
+    const historyList = document.getElementById('historyList');
+    const clearHistory = document.getElementById('clearHistory');
+    const historyToggle = document.getElementById('historyToggle');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsClose = document.getElementById('settingsClose');
+    const featureSettingsList = document.getElementById('featureSettingsList');
+    const newChatButton = document.getElementById('newChatButton');
+    const exportChatButton = document.getElementById('exportChatButton');
+    const chatHelpButton = document.getElementById('chatHelpButton');
+    const composerMenuButton = document.getElementById('composerMenuButton');
+    const composerToolbox = document.getElementById('composerToolbox');
+    const attachFilesButton = document.getElementById('attachFilesButton');
+    const planModeToggle = document.getElementById('planModeToggle');
+    const pursueGoalToggle = document.getElementById('pursueGoalToggle');
+    const pluginsButton = document.getElementById('pluginsButton');
+    const permissionsButton = document.getElementById('permissionsButton');
+    const mediaFile = document.getElementById('mediaFile');
+    const mediaPrompt = document.getElementById('mediaPrompt');
+    const mediaRun = document.getElementById('mediaRun');
+    const form = document.getElementById('form');
+    const text = document.getElementById('text');
+    const sendButton = document.getElementById('sendButton');
+    const reader = document.getElementById('reader');
+    const readerShuffle = document.getElementById('readerShuffle');
+    const readerPrev = document.getElementById('readerPrev');
+    const readerPlay = document.getElementById('readerPlay');
+    const readerNext = document.getElementById('readerNext');
+    const readerStop = document.getElementById('readerStop');
+    const readerClose = document.getElementById('readerClose');
+    const readerProgress = document.getElementById('readerProgress');
+    const readerTime = document.getElementById('readerTime');
+    const permissionModal = document.getElementById('permissionModal');
+    const permissionText = document.getElementById('permissionText');
+    const permissionAllow = document.getElementById('permissionAllow');
+    const permissionCancel = document.getElementById('permissionCancel');
+    const permissionClose = document.getElementById('permissionClose');
+    const lockScreen = document.getElementById('lockScreen');
+    const pinInput = document.getElementById('pinInput');
+    const unlockButton = document.getElementById('unlockButton');
+    const lockMessage = document.getElementById('lockMessage');
+    
+    const sidebar = document.getElementById('sidebar');
+    const topMenuBtn = document.getElementById('topMenuBtn');
+    const sidebarMenuBtn = document.getElementById('sidebarMenuBtn');
+    const mediaToolsOverlay = document.getElementById('mediaToolsOverlay');
+
+    if (topMenuBtn && sidebar) {
+        topMenuBtn.addEventListener('click', () => { sidebar.classList.remove('collapsed'); topMenuBtn.classList.add('hidden'); });
+    }
+    if (sidebarMenuBtn && sidebar) {
+        sidebarMenuBtn.addEventListener('click', () => { sidebar.classList.add('collapsed'); topMenuBtn.classList.remove('hidden'); });
+    }
+    
+    if (attachFilesButton && mediaFile) {
+        attachFilesButton.addEventListener('click', () => { mediaFile.click(); });
+    }
+    if (mediaFile && mediaToolsOverlay) {
+        mediaFile.addEventListener('change', () => {
+          if (mediaFile.files.length > 0) {
+            mediaToolsOverlay.classList.add('active');
+            uploadSelectedMedia(false);
+          } else {
+            mediaToolsOverlay.classList.remove('active');
+          }
+        });
+    }
+
+    if (text) {
+        text.addEventListener('input', () => {
+          text.style.height = 'auto';
+          text.style.height = (text.scrollHeight) + 'px';
+        });
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    let recognition = null;
+    let listening = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let micWanted = false;
+    let desktopMicWanted = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let desktopMicStarting = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let desktopMicStartId = 0;
+    let desktopMicAbort = null;
+    let desktopMicErrorCount = 0;
+    let voiceBusy = false;
+    let speechBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let speechPlaybackRunId = 0;
+    let readerText = '';
+    let readerLines = [];
+    let readerIndex = 0;
+    let readerPaused = false;
+    let readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let readerUtterance = null;
+    let readerManualStop = false;
+    let readerRunId = 0;
+    let readerTimer = null;
+    const readerAudio = new Audio();
+    readerAudio.preload = 'metadata';
+    let readerAudioUrl = '';
+    let readerPlaybackId = 0;
+    let readerPreparing = false;
+    let testVoiceBusy = false;
+    let historyTimer = null;
+    let speechNetworkErrors = 0;
+    let pendingConfirmCommand = '';
+    let pendingPermissionAction = null;
+    let setupPopupShown = false;
+    let shownNeedIds = new Set();
+    let sendBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+    let recognitionRestartTimer = null;
+    let accessToken = '';
+    let assistantPowerOn = true;
+    const uiThemeClasses = ['theme-attractive', 'theme-clean', 'theme-midnight', 'theme-emerald', 'theme-light', 'theme-contrast'];
+    function applyUiTheme(theme) {
+      const raw = String(theme || 'clean').toLowerCase();
+      const safe = ['attractive', 'clean', 'midnight', 'emerald', 'light', 'contrast'].includes(raw) ? raw : 'attractive';
+      document.body.classList.remove(...uiThemeClasses);
+      document.body.classList.add('theme-' + safe);
+    }
+    const novaClientId = sessionStorage.getItem('novaClientId') || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `nova-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    sessionStorage.setItem('novaClientId', novaClientId);
+    const novaActivePageKey = 'nova.activePageClient';
+    let thisPageOwnsNova = true;
+
+    function localActivePage() {
+      try {
+        return JSON.parse(localStorage.getItem(novaActivePageKey) || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+    function isPageOwner() {
+      const item = localActivePage();
+      if (!item.id) return true;
+      if (item.id === novaClientId) return true;
+      return Date.now() - Number(item.time || 0) > 45000;
+    }
+    function claimPageOwner(reason = 'active') {
+      thisPageOwnsNova = true;
+      try {
+        localStorage.setItem(novaActivePageKey, JSON.stringify({id: novaClientId, time: Date.now(), reason}));
+      } catch (e) {}
+      fetch('/api/page_session', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({active: true, reason})
+      }).catch(() => {});
+    }
+    function silenceThisStalePage() {
+      if (!thisPageOwnsNova) return;
+      thisPageOwnsNova = false;
+      try { stopAllMic(); } catch (e) {}
+      try { readerAudio.pause(); } catch (e) {}
+      try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+      speechPlaybackRunId += 1;
+      speechBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      readerPaused = false;
+      setVoiceButtons(false);
+      statusEl.textContent = 'Stale tab';
+      subEl.textContent = 'Another Nova tab is active. This tab is silent now. Click here or refresh to control Nova.';
+    }
+    window.addEventListener('storage', (event) => {
+      if (event.key !== novaActivePageKey) return;
+      const item = localActivePage();
+      if (item.id && item.id !== novaClientId) silenceThisStalePage();
+    });
+    window.addEventListener('focus', () => claimPageOwner('focus'));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) claimPageOwner('visible');
+    });
+    setInterval(() => {
+      if (thisPageOwnsNova && isPageOwner()) claimPageOwner('heartbeat');
+    }, 12000);
+    claimPageOwner('load');
+
+    function setPage(page) {
+      document.body.classList.toggle('voice-page', page === 'voice');
+      document.body.classList.toggle('chat-page', page !== 'voice');
+      if (voicePageBtn) voicePageBtn.classList.toggle('active', page === 'voice');
+      if (chatPageBtn) chatPageBtn.classList.toggle('active', page !== 'voice');
+      if (page !== 'voice' && micWanted) toggleVoice();
+    }
+
+    function setComposerMenu(open) {
+      composerToolbox.classList.toggle('active', Boolean(open));
+      composerMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+      composerMenuButton.textContent = open ? '\u00D7' : '+';
+    }
+
+    function syncComposerModesFromSettings(items = []) {
+      const plan = items.find(item => item.key === 'plan_mode_enabled');
+      const pursue = items.find(item => item.key === 'pursue_goal_mode_enabled');
+      if (plan) planModeToggle.checked = Boolean(plan.enabled);
+      if (pursue) pursueGoalToggle.checked = Boolean(pursue.enabled);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function authHeaders(extra = {}) {
+      const headers = Object.assign({}, extra);
+      if (accessToken) headers['X-Nova-Token'] = accessToken;
+      headers['X-Nova-Client'] = novaClientId;
+      return headers;
+    }
+    async function copyToClipboard(value) {
+      try {
+        await navigator.clipboard.writeText(value);
+        subEl.textContent = 'Copied.';
+      } catch (e) {
+        text.value = value;
+        text.focus();
+        text.select();
+        subEl.textContent = 'Clipboard blocked, so I placed it in the chat box.';
+      }
+    }
+    
+    function renderMessage(value, kind) {
+      let raw = String(value);
+      let mediaHtml = '';
+
+      raw = raw.replace(/\[NOVA_IMAGE_URL\](.*?)\[\/NOVA_IMAGE_URL\]/g, (m, url) => {
+        mediaHtml += `<div style="margin:12px 0;position:relative;">
+          <img src="${url}" style="max-width:100%;border-radius:12px;cursor:pointer;" onclick="window.open('${url}','_blank')">
+          <div style="margin-top:8px;display:flex;gap:8px;">
+            <button type="button" onclick="window.open('${url}','_blank')" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);cursor:pointer;font-size:13px;">Download</button>
+            <button type="button" onclick="this.closest('.msg').remove()" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--red);cursor:pointer;font-size:13px;">Delete</button>
+          </div>
+        </div>`;
+        return '';
+      });
+
+      raw = raw.replace(/\[NOVA_IMAGE\](.*?)\[\/NOVA_IMAGE\]/g, (m, filePath) => {
+        const apiUrl = '/api/file?path=' + encodeURIComponent(filePath);
+        mediaHtml += `<div style="margin:12px 0;position:relative;">
+          <img src="${apiUrl}" style="max-width:100%;border-radius:12px;cursor:pointer;" onclick="window.open('${apiUrl}','_blank')">
+          <div style="margin-top:8px;display:flex;gap:8px;">
+            <button type="button" onclick="window.open('${apiUrl}','_blank')" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);cursor:pointer;font-size:13px;">Download</button>
+            <button type="button" onclick="this.closest('.msg').remove()" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--red);cursor:pointer;font-size:13px;">Delete</button>
+          </div>
+        </div>`;
+        return '';
+      });
+
+      const parts = raw.split(/```([\s\S]*?)```/g);
+      const textHtml = parts.map((part, index) => {
+        if (index % 2 === 1) {
+          const code = part.replace(/^[a-zA-Z0-9_+-]+\n/, '');
+          return `<pre><code>${escapeHtml(code.trim())}</code></pre>`;
+        }
+        let t = escapeHtml(part);
+        t = t.replace(/([A-Z]:\\[^\s<"']+\.(?:png|jpe?g|gif|webp))/gi, (match, p1) => {
+           const u = '/api/file?path=' + encodeURIComponent(p1);
+           return `<br><img src="${u}" style="max-width:100%;border-radius:12px;margin-top:10px;cursor:pointer;" onclick="window.open('${u}','_blank')">`;
+        });
+        t = t.replace(/([A-Z]:\\[^\s<"']+\.(?:mp4|webm))/gi, (match, p1) => {
+           const u = '/api/file?path=' + encodeURIComponent(p1);
+           return `<br><video src="${u}" controls style="max-width:100%;border-radius:12px;margin-top:10px;"></video>`;
+        });
+        return t;
+      }).join('');
+
+      return mediaHtml + textHtml;
+    }
+
+    function makeActionButton(label, title, fn) {
+      const btn = document.createElement('button');
+      btn.className = 'icon-btn';
+      btn.type = 'button';
+      btn.title = title;
+      btn.textContent = label;
+      btn.addEventListener('click', fn);
+      return btn;
+    }
+    
+    function trimChat() {
+      while (chat.children.length > 80) chat.removeChild(chat.firstElementChild);
+    }
+    
+    function add(kind, value, userText = '') {
+      const wrapper = document.createElement('div');
+      wrapper.className = `msg ${kind}`;
+      
+      if (kind === 'nova') {
+        const row = document.createElement('div');
+        row.className = 'nova-avatar-row';
+        
+        const av = document.createElement('div');
+        av.className = 'nova-avatar';
+        av.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 0L13.8 8.2L22 10L13.8 11.8L12 20L10.2 11.8L2 10L10.2 8.2L12 0Z"/></svg>`;
+        
+        const content = document.createElement('div');
+        content.className = 'msg-content';
+        content.innerHTML = renderMessage(value, kind);
+        
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.appendChild(makeActionButton('\uD83D\uDCC4', 'Copy answer', () => copyToClipboard(value)));
+        actions.appendChild(makeActionButton('\uD83D\uDD0A', 'Read this answer', () => openReader(value)));
+        if (userText) actions.appendChild(makeActionButton('\uD83D\uDD04', 'Regenerate', () => send(userText)));
+        content.appendChild(actions);
+        
+        row.appendChild(av);
+        row.appendChild(content);
+        wrapper.appendChild(row);
+        
+        const welcome = document.getElementById('prompt');
+        if (welcome && welcome.parentElement && welcome.parentElement.parentElement && welcome.parentElement.parentElement.parentElement) {
+            welcome.parentElement.parentElement.parentElement.style.display = 'none';
+        }
+      } else {
+        wrapper.innerHTML = renderMessage(value, kind);
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.appendChild(makeActionButton('\u270E', 'Edit', () => { text.value = value; text.focus(); }));
+        wrapper.appendChild(actions);
+      }
+      
+      chat.appendChild(wrapper);
+      trimChat();
+      requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+    }
+
+    async function feedback(kind, user, assistant) {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({kind, user, assistant})
+      });
+      subEl.textContent = kind === 'like' ? 'Saved as helpful.' : 'Saved feedback.';
+      loadHistory();
+    }
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+    }
+    async function uploadSelectedMedia(analyze = false) {
+      const files = Array.from(mediaFile.files || []);
+      if (!files.length) {
+        add('nova', 'Select a file, photo, or video first.');
+        return;
+      }
+      mediaRun.disabled = true;
+      subEl.textContent = `Uploading ${files.length} file(s) to local Nova folder...`;
+      try {
+        for (const file of files) {
+          const dataUrl = await readFileAsDataUrl(file);
+          const res = await fetch('/api/media/upload', {
+            method: 'POST',
+            headers: authHeaders({'Content-Type': 'application/json'}),
+            body: JSON.stringify({filename: file.name, data: dataUrl, analyze, prompt: mediaPrompt.value || ''})
+          });
+          const data = await res.json();
+          if (res.status === 403) {
+            setLocked(true);
+            throw new Error(data.reply || 'Nova is locked.');
+          }
+          if (!res.ok || data.ok === false) throw new Error(data.reply || data.error || 'Upload failed');
+          add('nova', data.reply || 'File uploaded.');
+        }
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+      } catch (e) {
+        add('nova', 'File upload failed: ' + e.message);
+      } finally {
+        mediaRun.disabled = false;
+      }
+    }
+    async function runSmartMediaTask() {
+      const files = Array.from(mediaFile.files || []);
+      const prompt = (mediaPrompt.value || '').trim();
+      if (!files.length && !prompt) {
+        add('nova', 'Select a photo/video/file or type a prompt first.');
+        return;
+      }
+      mediaRun.disabled = true;
+      mediaRun.textContent = '...';
+      subEl.textContent = files.length ? `Working on ${files.length} selected file(s)...` : 'Creating from prompt...';
+      try {
+        const payloadFiles = [];
+        for (const file of files) {
+          const dataUrl = await readFileAsDataUrl(file);
+          payloadFiles.push({filename: file.name, type: file.type || '', data: dataUrl});
+        }
+        const res = await fetch('/api/media/run', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({prompt, files: payloadFiles})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || data.ok === false) throw new Error(data.reply || data.error || 'Media task failed');
+        add('you', prompt || `Selected ${files.length} file(s)`);
+        add('nova', data.reply || 'Done.', prompt);
+        subEl.textContent = 'Media task complete.';
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+      } catch (e) {
+        add('nova', 'Media task failed: ' + e.message);
+        subEl.textContent = 'Media task failed.';
+      } finally {
+        mediaRun.disabled = false;
+        mediaRun.textContent = '\u25B6';
+      }
+    }
+    function formatReaderTime(value) {
+      const seconds = Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
+      return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    }
+    function updateReader() {
+      const duration = Number.isFinite(readerAudio.duration) ? readerAudio.duration : 0;
+      const current = Number.isFinite(readerAudio.currentTime) ? readerAudio.currentTime : 0;
+      readerProgress.max = Math.max(0, duration);
+      readerProgress.value = Math.min(current, Math.max(0, duration));
+      readerTime.textContent = `${formatReaderTime(current)} / ${formatReaderTime(duration)}`;
+      readerPlay.textContent = readerActive && !readerPaused ? '\u275A\u275A' : '\u25B6';
+      const hasAudio = Boolean(readerAudioUrl);
+      [readerShuffle, readerPrev, readerPlay, readerNext, readerStop, readerProgress].forEach(el => el.disabled = !hasAudio || readerPreparing);
+    }
+    async function stopReader(keepOpen = true) {
+      readerManualStop = true;
+      readerRunId += 1;
+      clearTimeout(readerTimer);
+      readerTimer = null;
+      try { readerAudio.pause(); } catch (e) {}
+      try { readerAudio.currentTime = 0; } catch (e) {}
+      readerUtterance = null;
+      readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      readerPaused = false;
+      readerPreparing = false;
+      finishSpeechPlayback(readerPlaybackId);
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      if (!keepOpen) reader.classList.remove('active');
+      await cancelSpeechPlayback();
+      subEl.textContent = keepOpen ? 'Voice stopped.' : 'Voice control bar closed.';
+    }
+    async function prepareReaderAudio(value) {
+      const runId = ++readerRunId;
+      readerPreparing = true;
+      readerManualStop = false;
+      readerText = String(value || '').trim();
+      readerAudioUrl = '';
+      try { readerAudio.pause(); } catch (e) {}
+      try { readerAudio.removeAttribute('src'); readerAudio.load(); } catch (e) {}
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      const preparationPlaybackId = beginSpeechPlayback();
+      subEl.textContent = 'Preparing local seekable voice...';
+      try {
+        await fetch('/api/stop_speech', {method: 'POST', headers: authHeaders()});
+        const res = await fetch('/api/reader_audio', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({text: readerText})
+        });
+        const data = await res.json().catch(() => ({ok: res.ok}));
+        if (!res.ok || data.ok === false || !data.url) throw new Error(data.error || 'Reader audio generation failed');
+        if (runId !== readerRunId || readerManualStop) return;
+        readerAudioUrl = data.url;
+        readerAudio.src = readerAudioUrl;
+        readerAudio.load();
+        subEl.textContent = 'Reader audio ready.';
+        await playReaderAudio();
+      } catch (e) {
+        if (runId !== readerRunId || readerManualStop) return;
+        readerAudioUrl = '';
+        subEl.textContent = 'No sound from Windows voice. Check Windows output device.';
+        add('nova', 'Voice output failed: ' + e.message + '. Try: open sound settings, unmute speaker, choose the correct output device, then press Read again.');
+      } finally {
+        readerPreparing = false;
+        finishSpeechPlayback(preparationPlaybackId);
+        updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      }
+    }
+    async function playReaderAudio() {
+      if (!readerAudioUrl) {
+        subEl.textContent = 'Nothing to read in this answer.';
+        updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+        return;
+      }
+      readerManualStop = false;
+      readerActive = true; if(window.updateVisualizerState) window.updateVisualizerState();
+      readerPaused = false;
+      readerPlaybackId = beginSpeechPlayback();
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      subEl.textContent = 'Reading selected answer...';
+      try {
+        await readerAudio.play();
+      } catch (e) {
+        if (readerManualStop) return;
+        readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+        readerPaused = true;
+        updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+        finishSpeechPlayback(readerPlaybackId);
+        subEl.textContent = 'Playback was blocked. Press Play once to allow browser audio.';
+      }
+    }
+    function openReader(value) {
+      if (readerText === value && (readerActive || readerPaused)) {
+        stopReader(true);
+        return;
+      }
+      readerText = value;
+      reader.classList.add('active');
+      prepareReaderAudio(value);
+    }
+    async function pauseResumeReader() {
+      if (!readerAudioUrl) return;
+      if (readerActive && !readerPaused) {
+        try { readerAudio.pause(); } catch (e) {}
+        readerPaused = true;
+        readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+        finishSpeechPlayback(readerPlaybackId);
+        subEl.textContent = 'Reading paused.';
+        updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      } else {
+        await playReaderAudio();
+      }
+    }
+    function moveReader(seconds) {
+      if (!readerAudioUrl) return;
+      const duration = Number.isFinite(readerAudio.duration) ? readerAudio.duration : Number.MAX_SAFE_INTEGER;
+      readerAudio.currentTime = Math.max(0, Math.min(duration, (readerAudio.currentTime || 0) + seconds));
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      subEl.textContent = `${seconds > 0 ? 'Forward' : 'Back'} ${Math.abs(seconds)} seconds.`;
+    }
+    readerAudio.addEventListener('loadedmetadata', updateReader);
+    readerAudio.addEventListener('durationchange', updateReader);
+    readerAudio.addEventListener('timeupdate', updateReader);
+    readerAudio.addEventListener('ended', () => {
+      readerActive = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      readerPaused = false;
+      finishSpeechPlayback(readerPlaybackId);
+      subEl.textContent = 'Read complete.';
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+    });
+    function showPermissionPopup(message, confirmCommand, onAllow = null) {
+      pendingConfirmCommand = confirmCommand || '';
+      pendingPermissionAction = typeof onAllow === 'function' ? onAllow : null;
+      permissionText.textContent = message || 'Nova needs confirmation before doing this.';
+      permissionAllow.textContent = (pendingConfirmCommand || pendingPermissionAction) ? 'Allow' : 'OK';
+      permissionModal.classList.add('active');
+      permissionAllow.focus();
+    }
+    function hidePermissionPopup() {
+      permissionModal.classList.remove('active');
+      pendingConfirmCommand = '';
+      pendingPermissionAction = null;
+      permissionAllow.textContent = 'Allow';
+    }
+    function setLocked(locked) {
+      lockScreen.classList.toggle('active', locked);
+      if (locked) {
+        pinInput.focus();
+        setPowerState(false);
+      }
+    }
+    async function unlockNova() {
+      const pin = pinInput.value.trim();
+      if (!pin) {
+        lockMessage.textContent = 'Enter your PIN.';
+        return;
+      }
+      unlockButton.disabled = true;
+      try {
+        const res = await fetch('/api/unlock', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({pin})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          lockMessage.textContent = data.message || 'Wrong PIN.';
+          return;
+        }
+        accessToken = data.token || '';
+        pinInput.value = '';
+        lockMessage.textContent = '';
+        setLocked(false);
+        refreshApiStatus();
+        loadHistory();
+      } catch (e) {
+        lockMessage.textContent = 'Unlock failed. Keep Nova terminal open.';
+      } finally {
+        unlockButton.disabled = false;
+      }
+    }
+    function setVoiceButtons(active) {
+      voiceButton.textContent = active ? 'Stop Voice' : 'Start Voice';
+      micSmall.textContent = active ? 'Stop' : 'Mic';
+      desktopMic.textContent = active ? 'Stop Mic' : 'Desktop Mic';
+      statusEl.textContent = active ? 'Listening' : 'Ready';
+      mic.classList.toggle('listening', active);
+    }
+    function stopBrowserRecognition() {
+      micWanted = false;
+      clearTimeout(recognitionRestartTimer);
+      try { if (recognition) recognition.abort(); } catch (e) {}
+      try { if (recognition) recognition.stop(); } catch (e) {}
+    }
+    function stopDesktopMicLoop() {
+      desktopMicWanted = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      desktopMicStarting = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      abortDesktopMicCapture();
+      releaseVoiceSession();
+      desktopMic.disabled = false;
+    }
+    function abortDesktopMicCapture() {
+      const controller = desktopMicAbort;
+      desktopMicAbort = null;
+      if (!controller) return;
+      try { controller.abort(); } catch (e) {}
+    }
+    function suspendMicCaptureForSpeech() {
+      abortDesktopMicCapture();
+      try { if (recognition) recognition.abort(); } catch (e) {}
+    }
+    function beginSpeechPlayback() {
+      const playbackId = ++speechPlaybackRunId;
+      speechBusy = true; if(window.updateVisualizerState) window.updateVisualizerState();
+      suspendMicCaptureForSpeech();
+      return playbackId;
+    }
+    function finishSpeechPlayback(playbackId) {
+      if (playbackId !== speechPlaybackRunId) return;
+      speechBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      if (micWanted && !desktopMicWanted) scheduleRecognitionStart(180);
+    }
+    async function cancelSpeechPlayback() {
+      speechPlaybackRunId += 1;
+      speechBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      try { await fetch('/api/stop_speech', {method: 'POST', headers: authHeaders()}); } catch (e) {}
+      if ('speechSynthesis' in window) {
+        try { speechSynthesis.cancel(); } catch (e) {}
+      }
+      if (micWanted && !desktopMicWanted) scheduleRecognitionStart(180);
+    }
+    function stopAllMic() {
+      voiceBusy = false;
+      speechNetworkErrors = 0;
+      desktopMicErrorCount = 0;
+      desktopMicStarting = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      desktopMicStartId += 1;
+      stopBrowserRecognition();
+      stopDesktopMicLoop();
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      setVoiceButtons(false);
+    }
+    function setPowerState(enabled) {
+      assistantPowerOn = Boolean(enabled);
+      powerToggle.textContent = assistantPowerOn ? 'ON' : 'OFF';
+      powerToggle.classList.toggle('off', !assistantPowerOn);
+      powerToggle.setAttribute('aria-pressed', assistantPowerOn ? 'true' : 'false');
+      powerToggle.title = assistantPowerOn ? 'Turn Nova assistant off' : 'Turn Nova assistant on';
+      if (!assistantPowerOn && (micWanted || desktopMicWanted)) {
+        stopAllMic();
+        promptEl.textContent = 'Assistant off.';
+      }
+    }
+    function setNetworkModeState(mode) {
+      const offline = String(mode || 'online').toLowerCase() === 'offline';
+      networkModeToggle.textContent = offline ? 'Offline' : 'Online';
+      networkModeToggle.classList.toggle('offline', offline);
+      networkModeToggle.setAttribute('aria-pressed', offline ? 'false' : 'true');
+      networkModeToggle.title = offline
+        ? 'Nova Offline mode is active. Click to enable Wi-Fi and online assistant mode.'
+        : 'Nova Online mode is active. Click to turn Wi-Fi off and use offline assistant mode.';
+    }
+    async function setConnectivityMode(mode) {
+      networkModeToggle.disabled = true;
+      try {
+        const res = await fetch('/api/connectivity_mode', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({mode})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        setNetworkModeState((data.status || {}).mode || mode);
+        add('nova', data.reply || 'Connectivity mode updated.');
+        subEl.textContent = data.reply || 'Connectivity mode updated.';
+        refreshApiStatus();
+      } catch (e) {
+        add('nova', 'Connectivity mode change failed: ' + e.message);
+        subEl.textContent = 'Connectivity mode change failed.';
+      } finally {
+        networkModeToggle.disabled = false;
+      }
+    }
+    function requestConnectivityModeChange() {
+      const nextMode = networkModeToggle.classList.contains('offline') ? 'online' : 'offline';
+      const message = nextMode === 'offline'
+        ? 'Offline Assistant mode will disable Nova online AI calls and try to turn Wi-Fi OFF. Windows may show an administrator permission popup. Do you really want to continue?'
+        : 'Online Assistant mode will turn Wi-Fi ON and reconnect only to an already-saved Windows Wi-Fi profile. Windows may show an administrator permission popup. Do you really want to continue?';
+      showPermissionPopup(message, '', async () => setConnectivityMode(nextMode));
+    }
+    function scheduleRecognitionStart(delay = 120) {
+      clearTimeout(recognitionRestartTimer);
+      if (!recognition || !micWanted || voiceBusy || speechBusy || readerActive) return;
+      recognitionRestartTimer = setTimeout(() => {
+        if (!recognition || !micWanted || voiceBusy || speechBusy || readerActive || listening) return;
+        try {
+          recognition.start();
+        } catch (e) {
+          if (!String(e && e.name || e).includes('InvalidStateError')) {
+            stopAllMic();
+            subEl.textContent = 'Mic could not start. Check browser permissions.';
+            showPermissionPopup('Nova could not start the browser microphone. Allow microphone permission in the browser/Windows popup and click Start Voice again.', '');
+          }
+        }
+      }, delay);
+    }
+    async function backendSpeak(value) {
+      if (!isPageOwner()) {
+        silenceThisStalePage();
+        return;
+      }
+      if (readerActive || readerPaused) await stopReader(true);
+      const playbackId = beginSpeechPlayback();
+      try {
+        const res = await fetch('/api/speak_sync', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({text: value})
+        });
+        const data = await res.json().catch(() => ({ok: res.ok}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'voice failed');
+        return;
+      } catch (e) {
+        if (playbackId !== speechPlaybackRunId || readerActive || readerPaused) return;
+        subEl.textContent = 'Windows voice could not speak. Check terminal for error.';
+      } finally {
+        finishSpeechPlayback(playbackId);
+      }
+    }
+    async function claimVoiceSession() {
+      try {
+        const res = await fetch('/api/voice_session', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({active: true})
+        });
+        const data = await res.json();
+        return Boolean(res.ok && data.ok);
+      } catch (e) {
+        subEl.textContent = 'Nova could not claim the microphone session. Keep the terminal open and try again.';
+        return false;
+      }
+    }
+    function releaseVoiceSession() {
+      fetch('/api/voice_session', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({active: false})
+      }).catch(() => {});
+    }
+    async function loadVoices() {
+      try {
+        const res = await fetch('/api/voices');
+        const data = await res.json();
+        voiceSelect.innerHTML = '';
+        if (!data.voices || !data.voices.length) {
+          const opt = document.createElement('option');
+          opt.textContent = 'Default Windows voice';
+          opt.value = '';
+          voiceSelect.appendChild(opt);
+          return;
+        }
+        data.voices.forEach(v => {
+          const opt = document.createElement('option');
+          const detail = (data.details || []).find(item => item.name === v) || {};
+          opt.textContent = detail.culture ? `${v} (${detail.culture})` : v;
+          opt.value = v;
+          if (v === data.selected) opt.selected = true;
+          voiceSelect.appendChild(opt);
+        });
+        if (!data.hindi_voice_available) {
+          const opt = document.createElement('option');
+          opt.textContent = 'Hindi voice not installed - say setup Hindi voice';
+          opt.value = '';
+          voiceSelect.appendChild(opt);
+        }
+      } catch (e) {
+        voiceSelect.innerHTML = '<option>Voice list unavailable</option>';
+      }
+    }
+    async function loadHistory() {
+      if (loadHistory.loading) return;
+      loadHistory.loading = true;
+      try {
+        const res = await fetch('/api/history', {headers: authHeaders()});
+        const data = await res.json();
+        historyList.innerHTML = '';
+        if (!data.items || !data.items.length) {
+          historyList.innerHTML = '<div class="history-item">No history yet<small>Your searches and chats will appear here.</small></div>';
+          return;
+        }
+        data.items.slice(-10).reverse().forEach(item => {
+          const btn = document.createElement('button');
+          btn.className = 'history-item';
+          btn.type = 'button';
+          btn.innerHTML = `${escapeHtml(item.user).slice(0, 80)}<small>${escapeHtml(item.assistant).slice(0, 120)}</small>`;
+          btn.addEventListener('click', () => {
+            text.value = item.user;
+            add('you', item.user);
+            add('nova', item.assistant, item.user);
+          });
+          historyList.appendChild(btn);
+        });
+      } catch (e) {
+        historyList.innerHTML = '<div class="history-item">History unavailable</div>';
+      } finally {
+        loadHistory.loading = false;
+      }
+    }
+    function applyFeatureSideEffects(key, enabled) {
+      if (key === 'voice_enabled' && !enabled) stopAllMic();
+      if (key === 'assistant_enabled') setPowerState(enabled);
+      if (key === 'control_mode' && !enabled) subEl.textContent = 'Laptop control is OFF.';
+    }
+    async function updateFeatureSetting(key, enabled, checkbox) {
+      try {
+        const res = await fetch('/api/feature_settings', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({key, enabled})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || data.ok === false) throw new Error(data.reply || 'Setting failed');
+        applyFeatureSideEffects(key, enabled);
+        if (key === 'plan_mode_enabled') planModeToggle.checked = Boolean(enabled);
+        if (key === 'pursue_goal_mode_enabled') pursueGoalToggle.checked = Boolean(enabled);
+        subEl.textContent = data.reply || 'Setting updated.';
+        if (checkbox) checkbox.checked = Boolean(enabled);
+        if (data.settings) renderFeatureSettings(data.settings.items || []);
+        refreshApiStatus();
+      } catch (e) {
+        if (checkbox) checkbox.checked = !enabled;
+        add('nova', 'Setting update failed: ' + e.message);
+      }
+    }
+    function renderFeatureSettings(items) {
+      syncComposerModesFromSettings(items);
+      featureSettingsList.innerHTML = '';
+      if (!items.length) {
+        featureSettingsList.innerHTML = '<div class="history-item">No settings available</div>';
+        return;
+      }
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'setting-item';
+        const info = document.createElement('div');
+        info.innerHTML = `<strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small>`;
+        const label = document.createElement('label');
+        label.className = 'switch';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = Boolean(item.enabled);
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        label.appendChild(input);
+        label.appendChild(slider);
+        input.addEventListener('change', () => {
+          const wantsOn = input.checked;
+          if (!wantsOn) {
+            updateFeatureSetting(item.key, false, input);
+            return;
+          }
+          input.checked = false;
+          showPermissionPopup(
+            `${item.label}: ${item.description}\n\nDo you really want to turn this ON?`,
+            '',
+            async () => updateFeatureSetting(item.key, true, input)
+          );
+        });
+        row.appendChild(info);
+        row.appendChild(label);
+        featureSettingsList.appendChild(row);
+      });
+    }
+    async function loadFeatureSettings() {
+      try {
+        const res = await fetch('/api/feature_settings', {headers: authHeaders()});
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          return;
+        }
+        syncComposerModesFromSettings(data.items || []);
+        renderFeatureSettings(data.items || []);
+      } catch (e) {
+        featureSettingsList.innerHTML = '<div class="history-item">Settings unavailable</div>';
+      }
+    }
+    function toggleHistoryPanel() {
+      document.body.classList.toggle('history-open');
+      if (document.body.classList.contains('history-open')) {
+        document.body.classList.remove('settings-open');
+        loadHistory();
+      }
+    }
+    function toggleSettingsPanel() {
+      document.body.classList.toggle('settings-open');
+      if (document.body.classList.contains('settings-open')) {
+        document.body.classList.remove('history-open');
+        loadFeatureSettings();
+      }
+    }
+    function openSettingsPanel(message = '') {
+      document.body.classList.add('settings-open');
+      document.body.classList.remove('history-open');
+      loadFeatureSettings();
+      if (message) subEl.textContent = message;
+    }
+    function toggleComposerFeature(key, checkbox, label, description, exclusiveKey = '', exclusiveCheckbox = null) {
+      const wantsOn = checkbox.checked;
+      if (!wantsOn) {
+        updateFeatureSetting(key, false, checkbox);
+        return;
+      }
+      checkbox.checked = false;
+      showPermissionPopup(
+        `${label}: ${description}\n\nDo you really want to turn this ON?`,
+        '',
+        async () => {
+          if (exclusiveKey && exclusiveCheckbox && exclusiveCheckbox.checked) {
+            await updateFeatureSetting(exclusiveKey, false, exclusiveCheckbox);
+          }
+          await updateFeatureSetting(key, true, checkbox);
+        }
+      );
+    }
+    async function refreshApiStatus() {
+      try {
+        const [statusRes, networkRes] = await Promise.all([fetch('/api/status'), fetch('/api/network')]);
+        const data = await statusRes.json();
+        const network = await networkRes.json();
+        const laptop = data.laptop_connected ? 'Laptop connected. ' : 'Laptop not connected. ';
+        const local = data.local_only_mode ? 'Local-only. ' : '';
+        const mobile = data.mobile_mode && data.mobile_url ? ` Mobile: ${data.mobile_url}` : '';
+        setNetworkModeState(data.assistant_network_mode || network.mode || 'online');
+        brandName.textContent = data.assistant_display_name || 'Nova Assistant';
+        applyUiTheme(data.ui_theme || 'clean');
+        if (data.access_lock_enabled && !accessToken) setLocked(true);
+        setPowerState(Boolean(data.assistant_enabled));
+        if (data.online) {
+          const first = data.order && data.order.length ? data.order[0] : 'API';
+          statusEl.textContent = `${network.online ? 'Online' : 'Net?'}: ${first}`;
+          subEl.textContent = `${local}${laptop}Brain connected: ${data.order.join(', ')}.${mobile}`;
+        } else {
+          statusEl.textContent = network.online ? 'API offline' : 'Offline';
+          subEl.textContent = local + laptop + (data.message || 'Add an API key in .env for online thinking.') + mobile;
+        }
+        const needs = Array.isArray(data.needs) ? data.needs : [];
+        const actionableNeed = needs.find(item => item.confirmCommand && !shownNeedIds.has(item.id));
+        const infoNeed = needs.find(item => !item.confirmCommand && !shownNeedIds.has(item.id));
+        const need = actionableNeed || infoNeed;
+        if (need) {
+          shownNeedIds.add(need.id);
+          showPermissionPopup(`${need.title}: ${need.message} This stays on this laptop only.`, need.confirmCommand || '');
+        }
+      } catch (e) {
+        statusEl.textContent = 'Status error';
+      }
+    }
+    async function checkNetworkMessage() {
+      if (!navigator.onLine) return 'Browser is offline. Check Wi-Fi.';
+      try {
+        const res = await fetch('/api/network');
+        const data = await res.json();
+        return data.message || 'Network checked.';
+      } catch (e) {
+        return 'Browser could not reach Nova network checker.';
+      }
+    }
+    async function send(command, fromVoice = false) {
+      command = (command || '').trim();
+      if (!command) return;
+      if (fromVoice && !isPageOwner()) {
+        silenceThisStalePage();
+        return;
+      }
+      if (!fromVoice) claimPageOwner('send');
+      if (fromVoice && /^(stop voice|stop mic|stop listening|mic off|voice off|band mic|mic band|voice band|sunna band|listening band)$/i.test(command)) {
+        stopAllMic();
+        add('you', command);
+        add('nova', 'Voice stopped. Click Start Voice again when you want me to listen.');
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF by your command.';
+        return;
+      }
+      if (sendBusy) {
+        subEl.textContent = 'Still working on the previous command.';
+        return;
+      }
+      sendBusy = true; if(window.updateVisualizerState) window.updateVisualizerState();
+      sendButton.disabled = true;
+      if (fromVoice) {
+        voiceBusy = true;
+        try { recognition.stop(); } catch (e) {}
+        subEl.textContent = `Heard: ${command}`;
+      }
+      add('you', command);
+      promptEl.textContent = 'Working on it...';
+      statusEl.textContent = 'Thinking';
+      if (/\b(wifi|wi-fi|wi fi|bluetooth|blue tooth)\b/i.test(command) && /\b(on|off|enable|disable|turn on|turn off|switch on|switch off)\b/i.test(command)) {
+        subEl.textContent = 'Windows permission popup may appear. Press Yes to allow Nova, then I will verify the result.';
+      }
+      try {
+        const res = await fetch('/api/command', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({
+            command,
+            planMode: Boolean(planModeToggle.checked),
+            pursueGoal: Boolean(pursueGoalToggle.checked)
+          })
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Locked');
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const reply = data.reply || 'Nova did not return a reply.';
+        if (data.duplicate) {
+          promptEl.textContent = 'Duplicate ignored.';
+          subEl.textContent = 'The same command was already received. Nova ran it only once.';
+          statusEl.textContent = 'Ready';
+          return;
+        }
+        add('nova', reply, command);
+        promptEl.textContent = reply.length > 62 ? 'Done.' : reply;
+        if (data.needsConfirm) {
+          subEl.textContent = 'Permission needed on screen.';
+          showPermissionPopup(reply, data.confirmCommand);
+        } else if (data.needsPermission) {
+          subEl.textContent = 'Permission or setting needed.';
+          showPermissionPopup(reply, '');
+        } else {
+          subEl.textContent = 'Say another command.';
+        }
+        if (/Assistant is ON/i.test(reply)) setPowerState(true);
+        if (/Assistant is OFF/i.test(reply)) setPowerState(false);
+        statusEl.textContent = 'Ready';
+        const shouldSpeakReply = fromVoice || document.body.classList.contains('voice-page');
+        const replyAlreadySpeaking = /^Reading the last assistant answer/i.test(reply);
+        if (shouldSpeakReply && !replyAlreadySpeaking) {
+          if (reply.length < 360 && !reply.includes('```')) await backendSpeak(reply);
+          else await backendSpeak('I wrote the full answer in chat. Use the read button if you want me to read it.');
+        }
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+        if (data.exit) setTimeout(() => window.close(), 500);
+      } catch (e) {
+        const message = 'Nova server did not answer. Keep the terminal open, then try again.';
+        add('nova', message, command);
+        promptEl.textContent = 'Connection issue.';
+        subEl.textContent = message;
+        statusEl.textContent = 'Error';
+      } finally {
+        sendBusy = false; if(window.updateVisualizerState) window.updateVisualizerState();
+        sendButton.disabled = false;
+        if (fromVoice) {
+          setTimeout(() => {
+            voiceBusy = false;
+            scheduleRecognitionStart(120);
+          }, 900);
+        }
+      }
+    }
+    function setupRecognition() {
+      if (!SpeechRecognition) {
+        subEl.textContent = 'Browser voice needs Chrome or Edge. Use Desktop Mic instead.';
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        listening = true; if(window.updateVisualizerState) window.updateVisualizerState();
+        setVoiceButtons(true);
+        promptEl.textContent = 'Browser listening...';
+      };
+      recognition.onend = () => {
+        listening = false; if(window.updateVisualizerState) window.updateVisualizerState();
+        if (!micWanted) setVoiceButtons(false);
+      };
+      recognition.onerror = (event) => {
+        listening = false; if(window.updateVisualizerState) window.updateVisualizerState();
+        if (!micWanted) return;
+        if (event.error === 'no-speech') {
+          subEl.textContent = 'No speech heard. Mic is still ON. Click Stop Voice to turn it OFF, or speak again.';
+          scheduleRecognitionStart(450);
+          return;
+        }
+        if (event.error === 'network') {
+          speechNetworkErrors += 1;
+          subEl.textContent = 'Browser speech network issue. Mic mode is still ON; I will retry. Desktop Mic is usually better.';
+          scheduleRecognitionStart(Math.min(4500, 900 + speechNetworkErrors * 500));
+          return;
+        }
+        if (event.error === 'audio-capture') {
+          stopAllMic();
+          subEl.textContent = 'No microphone found. Check Windows input device.';
+          showPermissionPopup('No microphone is available to the browser. Check your Windows input device or browser permissions, and click Start Voice again when ready.', '');
+          return;
+        }
+        if (event.error === 'not-allowed') {
+          stopAllMic();
+          subEl.textContent = 'Microphone permission blocked. Allow mic in browser address bar, or use Desktop Mic.';
+          showPermissionPopup('Microphone permission is blocked. Use the browser address bar mic icon and choose Allow, then click Start Voice again.', '');
+          return;
+        }
+        subEl.textContent = `Mic issue: ${event.error}. Click Stop Voice to turn OFF.`;
+      };
+      recognition.onresult = (event) => {
+        const last = event.results[event.results.length - 1];
+        const command = last[0].transcript;
+        speechNetworkErrors = 0;
+        subEl.textContent = `Heard: ${command}`;
+        try { recognition.stop(); } catch (e) {}
+        send(command, true);
+      };
+    }
+
+    async function setPowerFromButton() {
+      const nextEnabled = !assistantPowerOn;
+      powerToggle.disabled = true;
+      const oldLabel = powerToggle.textContent;
+      powerToggle.textContent = nextEnabled ? 'ON...' : 'OFF...';
+      try {
+        const res = await fetch('/api/power', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({enabled: nextEnabled})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || !data.ok) throw new Error(data.reply || 'Power change failed');
+        setPowerState(Boolean(data.enabled));
+        const reply = data.reply || (data.enabled ? 'Assistant is ON.' : 'Assistant is OFF.');
+        add('nova', reply);
+        promptEl.textContent = data.enabled ? 'Ready.' : 'Assistant off.';
+        subEl.textContent = data.enabled ? 'ON/OFF button fixed. Say or type a command.' : 'Assistant control is paused. Press ON to enable.';
+        statusEl.textContent = data.enabled ? 'Ready' : 'Paused';
+      } catch (e) {
+        powerToggle.textContent = oldLabel;
+        subEl.textContent = 'ON/OFF button failed: ' + e.message;
+        await send(nextEnabled ? 'assistant on' : 'assistant off');
+      } finally {
+        powerToggle.disabled = false;
+        refreshApiStatus();
+      }
+    }
+
+    async function desktopListen() {
+      claimPageOwner('voice');
+      if (!assistantPowerOn || powerToggle.classList.contains('off')) {
+        subEl.textContent = 'Assistant is OFF. Press ON first.';
+        return;
+      }
+      if (desktopMicWanted || desktopMicStarting) {
+        stopAllMic();
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF. Click Start Voice once to turn ON again.';
+        return;
+      }
+      const startId = ++desktopMicStartId;
+      desktopMicStarting = true; if(window.updateVisualizerState) window.updateVisualizerState();
+      stopBrowserRecognition();
+      let sessionClaimed = false;
+      try {
+        sessionClaimed = await claimVoiceSession();
+      } catch (e) {
+        sessionClaimed = false;
+      }
+      desktopMicStarting = false; if(window.updateVisualizerState) window.updateVisualizerState();
+      if (startId !== desktopMicStartId) {
+        releaseVoiceSession();
+        return;
+      }
+      if (!sessionClaimed) {
+        subEl.textContent = 'Microphone session could not start. Refresh this Nova page once, then try again.';
+        return;
+      }
+      desktopMicWanted = true; if(window.updateVisualizerState) window.updateVisualizerState();
+      desktopMicErrorCount = 0;
+      setVoiceButtons(true);
+      promptEl.textContent = 'Desktop mic ON';
+      subEl.textContent = 'Desktop mic is ON. Speak a command. Click again to turn OFF.';
+      let switchedToBrowserMic = false;
+      while (desktopMicWanted && assistantPowerOn) {
+        if (sendBusy || voiceBusy || speechBusy || readerActive) {
+          await new Promise(r => setTimeout(r, 350));
+          continue;
+        }
+        const captureController = new AbortController();
+        desktopMicAbort = captureController;
+        try {
+          const res = await fetch('/api/listen_once', {method: 'POST', headers: authHeaders(), signal: captureController.signal});
+           const data = await res.json();
+           if (!desktopMicWanted) break;
+           if (!res.ok || !data.ok) {
+             const errMsg = data.error || data.message || data.text || 'Desktop mic failed';
+             stopAllMic();
+             promptEl.textContent = 'Mic stopped.';
+             subEl.textContent = errMsg;
+             showPermissionPopup(errMsg, '');
+             break;
+           }
+           if (data.kind === 'inactive') {
+             stopAllMic();
+             promptEl.textContent = 'Mic session stopped.';
+             subEl.textContent = data.message || 'Another Nova page owns the microphone. Stop it there, then press Start Voice here.';
+             break;
+           }
+           if (!data.text) {
+             if (data.kind === 'busy') {
+               subEl.textContent = 'Desktop mic is already capturing. Waiting quietly...';
+             } else if (data.kind === 'speech_service_error') {
+               desktopMicWanted = false; if(window.updateVisualizerState) window.updateVisualizerState();
+               abortDesktopMicCapture();
+               releaseVoiceSession();
+               if (SpeechRecognition) {
+                 micWanted = true;
+                 speechNetworkErrors = 0;
+                 switchedToBrowserMic = true;
+                 setVoiceButtons(true);
+                 promptEl.textContent = 'Browser mic fallback';
+                 subEl.textContent = 'Desktop mic hardware is OK, but Python speech recognition is blocked. I switched to Browser Mic. Allow browser microphone if asked.';
+                 add('nova', 'Desktop mic hardware is OK, but Python speech recognition could not reach the speech service. I switched to Browser Mic fallback. If the browser asks, press Allow.');
+                 scheduleRecognitionStart(650);
+                 break;
+               }
+               subEl.textContent = 'Desktop mic hardware is OK, but Python speech recognition is blocked and this browser has no speech fallback. Use typed commands or run ALLOW_NOVA_NETWORK.cmd.';
+               add('nova', data.message || 'Desktop mic speech recognition service failed. Use typed commands or run ALLOW_NOVA_NETWORK.cmd.');
+               break;
+             } else if (data.kind === 'no_speech') {
+               subEl.textContent = 'Listening quietly... speak a command, or click Stop Voice.';
+             } else {
+               subEl.textContent = `${data.message || 'No speech heard.'} Mic is still ON. Click Stop Voice to turn OFF.`;
+             }
+             const retryMs = Math.max(350, Math.min(1800, Number(data.retry_after || 0) * 1000 || (data.kind === 'no_speech' ? 900 : 550)));
+             await new Promise(r => setTimeout(r, retryMs));
+             continue;
+           }
+          subEl.textContent = `Desktop heard: ${data.text}`;
+          await send(data.text, true);
+        } catch (e) {
+          if (!desktopMicWanted) break;
+          if (String(e.name || e).includes('Abort')) {
+            await new Promise(r => setTimeout(r, 120));
+            continue;
+          }
+          desktopMicErrorCount += 1;
+          const message = String(e && e.message || e || '');
+          if (desktopMicErrorCount >= 3) {
+            stopAllMic();
+            promptEl.textContent = 'Mic stopped.';
+            subEl.textContent = 'Desktop mic stopped due to repeated errors.';
+            add('nova', `Voice mode auto-stopped after 3 consecutive failures: ${message || 'local capture failed'}. Please check the terminal logs.`);
+            break;
+          }
+          if (/failed to fetch|load failed|networkerror/i.test(message)) {
+            stopAllMic();
+            promptEl.textContent = 'Mic stopped.';
+            subEl.textContent = 'Nova server connection was lost. I stopped the mic so it will not repeat. Refresh the Nova page, then start voice again.';
+            add('nova', 'Mic stopped because the Nova page lost connection to the local server. Refresh this page once, then press Start Voice again.');
+            break;
+          }
+          subEl.textContent = 'Desktop mic capture had a local issue. I am retrying quietly. Click Stop Voice to turn OFF.';
+          if (desktopMicErrorCount === 1) {
+            // Old message kept here as a comment only:
+            // "Desktop mic had an issue. If Windows shows a microphone permission popup, press Allow."
+            add('nova', `Desktop mic capture issue: ${message || 'local capture failed'}. I will keep listening and retry quietly. If this repeats, say "mic status" or switch to Browser Mic.`);
+          }
+          await new Promise(r => setTimeout(r, Math.min(5000, 900 + desktopMicErrorCount * 350)));
+          continue;
+        } finally {
+          if (desktopMicAbort === captureController) desktopMicAbort = null;
+        }
+      }
+      if (!switchedToBrowserMic) stopAllMic();
+    }
+    function toggleVoice() {
+      // Main Start/Stop button now uses the desktop microphone loop.
+      // This avoids the browser SpeechRecognition network hiccup that kept retrying.
+      if (desktopMicWanted || micWanted) {
+        stopAllMic();
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF. Click Start Voice once to turn ON again.';
+        return;
+      }
+      desktopListen();
+    }
+
+    mic.addEventListener('click', toggleVoice);
+    voiceButton.addEventListener('click', toggleVoice);
+    micSmall.addEventListener('click', toggleVoice);
+    desktopMic.addEventListener('click', desktopListen);
+    composerMenuButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(!composerToolbox.classList.contains('active'));
+    });
+    attachFilesButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      mediaFile.click();
+    });
+    planModeToggle.addEventListener('change', () => {
+      toggleComposerFeature(
+        'plan_mode_enabled',
+        planModeToggle,
+        'Plan mode',
+        'Nova will plan first and will not execute the command.',
+        'pursue_goal_mode_enabled',
+        pursueGoalToggle
+      );
+    });
+    pursueGoalToggle.addEventListener('change', () => {
+      toggleComposerFeature(
+        'pursue_goal_mode_enabled',
+        pursueGoalToggle,
+        'Pursue goal',
+        'Nova will use safe autopilot for clear multi-step goals.',
+        'plan_mode_enabled',
+        planModeToggle
+      );
+    });
+    pluginsButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      openSettingsPanel('Plugins and Nova tools are in Settings.');
+    });
+    permissionsButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      openSettingsPanel('Default permissions opened. Turn features ON only after approving the popup.');
+    });
+    document.addEventListener('click', (event) => {
+      if (!composerToolbox || !composerToolbox.classList.contains('active')) return;
+      if (form && form.contains(event.target)) return;
+      setComposerMenu(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setComposerMenu(false);
+    });
+    if (powerToggle) powerToggle.addEventListener('click', setPowerFromButton);
+    if (networkModeToggle) networkModeToggle.addEventListener('click', requestConnectivityModeChange);
+    if (chatPageBtn) chatPageBtn.addEventListener('click', () => setPage('chat'));
+    if (voicePageBtn) voicePageBtn.addEventListener('click', () => setPage('voice'));
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const value = text.value;
+        send(value);
+        if (value.trim()) text.value = '';
+      });
+    }
+    if (sendButton) {
+      sendButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        const value = text ? text.value : '';
+        send(value);
+        if (text && value.trim()) text.value = '';
+      });
+    }
+    if (text) {
+      text.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          if (form) {
+            form.requestSubmit();
+          } else {
+            const value = text.value;
+            send(value);
+            if (value.trim()) text.value = '';
+          }
+        }
+      });
+    }
+    text.addEventListener('input', () => {
+      text.style.height = 'auto';
+      text.style.height = Math.min(text.scrollHeight, 190) + 'px';
+    });
+    document.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => send(btn.textContent)));
+    historyToggle.addEventListener('click', toggleHistoryPanel);
+    settingsToggle.addEventListener('click', toggleSettingsPanel);
+    settingsClose.addEventListener('click', () => document.body.classList.remove('settings-open'));
+    clearHistory.addEventListener('click', loadHistory);
+    newChatButton.addEventListener('click', () => {
+      chat.innerHTML = '';
+      send('new chat');
+    });
+    exportChatButton.addEventListener('click', () => send('export chat'));
+    chatHelpButton.addEventListener('click', () => send('chatgpt help'));
+    mediaRun.addEventListener('click', runSmartMediaTask);
+    mediaPrompt.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runSmartMediaTask();
+      }
+    });
+    mediaFile.addEventListener('change', () => {
+      const files = Array.from(mediaFile.files || []);
+      if (files.length === 1) subEl.textContent = `Selected media: ${files[0].name}`;
+      else if (files.length > 1) subEl.textContent = `Selected ${files.length} media files.`;
+    });
+    permissionAllow.addEventListener('click', () => {
+      const command = pendingConfirmCommand;
+      const action = pendingPermissionAction;
+      hidePermissionPopup();
+      if (action) action();
+      else if (command) send(command);
+    });
+    permissionCancel.addEventListener('click', () => {
+      hidePermissionPopup();
+      add('nova', 'Cancelled.');
+      subEl.textContent = 'Permission cancelled.';
+    });
+    permissionClose.addEventListener('click', () => {
+      hidePermissionPopup();
+      subEl.textContent = 'Permission closed.';
+    });
+    permissionModal.addEventListener('click', (event) => {
+      if (event.target === permissionModal) {
+        hidePermissionPopup();
+        subEl.textContent = 'Permission cancelled.';
+      }
+    });
+    unlockButton.addEventListener('click', unlockNova);
+    pinInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') unlockNova();
+    });
+    voiceSelect.addEventListener('change', async () => {
+      await fetch('/api/voice', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({voice: voiceSelect.value})
+      });
+      backendSpeak(`Voice changed to ${voiceSelect.value || 'default'}.`);
+    });
+    testVoice.addEventListener('click', async () => {
+      if (testVoiceBusy) return;
+      testVoiceBusy = true;
+      testVoice.disabled = true;
+      await backendSpeak('Hello Adarsh. My voice is now in slow and clear English mode.');
+      setTimeout(() => {
+        testVoiceBusy = false;
+        testVoice.disabled = false;
+      }, 2200);
+    });
+    readerPlay.addEventListener('click', pauseResumeReader);
+    readerPrev.addEventListener('click', () => moveReader(-3));
+    readerNext.addEventListener('click', () => moveReader(3));
+    readerStop.addEventListener('click', () => stopReader(true));
+    readerClose.addEventListener('click', () => stopReader(false));
+    readerShuffle.addEventListener('click', () => {
+      if (!readerAudioUrl) return;
+      readerAudio.currentTime = 0;
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+      if (!readerActive) playReaderAudio();
+    });
+    readerProgress.addEventListener('input', () => {
+      if (!readerAudioUrl) return;
+      readerAudio.currentTime = Number(readerProgress.value || 0);
+      updateReader();
+      window.visualizer = new OrbVisualizer('orbCanvas');
+      if(window.visualizer) window.visualizer.draw();
+      window.logTerminal('System online. Neural core linked.');
+    });
+    setupRecognition();
+    refreshApiStatus();
+    loadVoices();
+    loadHistory();
+    loadFeatureSettings();
+  
+    
+    // Auto Boot Screen transition
+    setTimeout(() => {
+      document.body.classList.remove('booting');
+      const bootOverlay = document.getElementById('boot-overlay');
+      if (bootOverlay) {
+        bootOverlay.style.opacity = '0';
+        setTimeout(() => bootOverlay.style.display = 'none', 1000);
+      }
+    }, 2500);
+
+    // Sidebar drawers slide transitions
+    const historyBtn = document.getElementById('historyToggle');
+    const historyPanel = document.getElementById('sidebar');
+    const historyCloseBtn = document.getElementById('sidebarMenuBtn');
+    if (historyBtn && historyPanel) {
+      historyBtn.addEventListener('click', () => {
+        historyPanel.style.left = '16px';
+      });
+    }
+    if (historyCloseBtn && historyPanel) {
+      historyCloseBtn.addEventListener('click', () => {
+        historyPanel.style.left = '-400px';
+      });
+    }
+
+    const settingsBtn = document.getElementById('settingsToggle');
+    const settingsPanelEl = document.getElementById('settingsPanel');
+    const settingsCloseBtn = document.getElementById('settingsClose');
+    if (settingsBtn && settingsPanelEl) {
+      settingsBtn.addEventListener('click', () => {
+        settingsPanelEl.classList.add('active');
+      });
+    }
+    if (settingsCloseBtn && settingsPanelEl) {
+      settingsCloseBtn.addEventListener('click', () => {
+        settingsPanelEl.classList.remove('active');
+      });
+    }
+
+    // Connect form input events
+    const textareaEl = document.getElementById('text');
+    const formEl = document.getElementById('form');
+    if (formEl) {
+      formEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const command = textareaEl.value.trim();
+        if (command) {
+          send(command);
+          textareaEl.value = '';
+          textareaEl.style.height = 'auto';
+        }
+      });
+    }
+    
+    // Small mic button triggers Web Speech Toggle
+    const micSmallBtn = document.getElementById('micSmall');
+    if (micSmallBtn) {
+      micSmallBtn.addEventListener('click', () => {
+        toggleVoice();
+      });
+    }
+  </script>
+</body>
+</html>

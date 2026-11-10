@@ -1,0 +1,1998 @@
+WEB_GUI_HTML = r"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content, viewport-fit=cover">
+  <title>Nova Assistant</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #131314;
+      --panel: #1e1f20;
+      --surface: rgba(255, 255, 255, .04);
+      --surface-hover: rgba(255, 255, 255, .08);
+      --text: #e3e3e3;
+      --muted: #c4c7c5;
+      --line: rgba(255, 255, 255, .1);
+      --blue: #a8c7fa;
+      --brand-gradient: linear-gradient(90deg, #4285f4, #9b72cb, #d96570);
+      --shadow: 0 4px 6px rgba(0,0,0,0.3);
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--line);
+      transition: transform 0.3s ease;
+      z-index: 20;
+    }
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+      width: 0;
+      border: none;
+    }
+    .sidebar-header {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-menu-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+    }
+    .sidebar-menu-btn:hover {
+      background: var(--surface-hover);
+    }
+    .new-chat-btn {
+      margin: 8px 16px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 24px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .new-chat-btn:hover { background: var(--surface-hover); }
+    .new-chat-btn span.plus { font-size: 18px; }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .history-section-title {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 16px;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+    .history-item {
+      padding: 10px 16px;
+      margin: 4px 0;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+      display: block;
+      text-align: left;
+      border: none;
+      background: transparent;
+      width: 100%;
+    }
+    .history-item:hover { background: var(--surface-hover); }
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-footer button {
+      padding: 10px 16px;
+      border-radius: 24px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-footer button:hover { background: var(--surface-hover); }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .top-bar {
+      height: 64px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .top-bar .brand {
+      font-size: 18px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sparkle {
+      width: 24px;
+      height: 24px;
+      background: var(--brand-gradient);
+      -webkit-mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0L13.8 8.2L22 10L13.8 11.8L12 20L10.2 11.8L2 10L10.2 8.2L12 0Z" fill="white"/></svg>') no-repeat center / contain;
+      mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0L13.8 8.2L22 10L13.8 11.8L12 20L10.2 11.8L2 10L10.2 8.2L12 0Z" fill="white"/></svg>') no-repeat center / contain;
+    }
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-pill {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-bottom: 140px; /* Space for input */
+    }
+    .chat-container::-webkit-scrollbar { width: 8px; }
+    .chat-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 4px; }
+    
+    .msg {
+      max-width: 85%;
+      line-height: 1.5;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg.you {
+      align-self: flex-end;
+      background: var(--surface);
+      padding: 12px 18px;
+      border-radius: 24px 24px 4px 24px;
+      color: var(--text);
+    }
+    .msg.nova {
+      align-self: flex-start;
+      padding: 4px 0;
+    }
+    .nova-avatar-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .nova-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand-gradient);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .nova-avatar svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+    .msg-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .msg pre {
+      background: #1e1f20;
+      padding: 16px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 12px 0;
+      border: 1px solid var(--line);
+    }
+    .msg code { font-family: 'Consolas', monospace; font-size: 13px; }
+    .msg-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+    }
+    .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+
+    .input-area {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, transparent, var(--bg) 40%);
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .input-box {
+      width: 100%;
+      max-width: 820px;
+      background: var(--panel);
+      border-radius: 32px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .input-box .attach-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .input-box .attach-btn:hover { background: var(--surface-hover); }
+    .input-box textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      resize: none;
+      max-height: 150px;
+      padding: 12px 0;
+      font-family: inherit;
+    }
+    .input-box textarea::placeholder { color: var(--muted); }
+    .input-box .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .input-box .action-btns button {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .input-box .action-btns button:hover { background: var(--surface-hover); }
+    .input-box .send-btn { color: var(--blue); }
+
+    /* File input hidden */
+    #mediaFile { display: none; }
+
+    /* Modals & Overlays */
+    .modal {
+      position: fixed; inset: 0; display: none; place-items: center;
+      background: rgba(0,0,0,0.6); z-index: 50; backdrop-filter: blur(4px);
+    }
+    .modal.active { display: grid; }
+    .modal-card {
+      background: var(--panel);
+      padding: 24px;
+      border-radius: 16px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+    }
+    .modal-card h2 { margin: 0 0 12px; font-weight: 500; }
+    .modal-card p { margin: 0 0 24px; color: var(--muted); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-actions button {
+      padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 500;
+    }
+    .modal-actions button.primary { background: var(--blue); color: #000; }
+    .modal-actions button.secondary { background: transparent; color: var(--blue); }
+    .modal-actions button.secondary:hover { background: var(--surface-hover); }
+
+    /* Lock Screen */
+    .lock-screen {
+      position: fixed; inset: 0; display: none; place-items: center;
+      background: var(--bg); z-index: 100;
+    }
+    .lock-screen.active { display: grid; }
+    .lock-card { text-align: center; width: 320px; }
+    .lock-card input {
+      width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--panel); color: var(--text); margin: 16px 0; font-size: 18px; text-align: center;
+    }
+
+    /* Media Tools Overlay */
+    .media-tools-overlay {
+      position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: var(--panel); border: 1px solid var(--line); padding: 12px 16px;
+      border-radius: 16px; display: none; align-items: center; gap: 12px; box-shadow: var(--shadow);
+      z-index: 10;
+    }
+    .media-tools-overlay.active { display: flex; }
+    .media-tools-overlay input[type="text"] {
+      background: transparent; border: none; color: var(--text); outline: none; width: 200px;
+    }
+    .media-tools-overlay button {
+      background: var(--surface); color: var(--text); border: none; padding: 6px 12px;
+      border-radius: 12px; cursor: pointer;
+    }
+
+    /* Helper styles */
+    .hidden { display: none !important; }
+    
+    @media (max-width: 768px) {
+      .sidebar { position: absolute; height: 100%; left: 0; top: 0; bottom: 0; }
+      .chat-container { padding: 16px; }
+      .input-box { margin: 0 16px; }
+    }
+  </style>
+</head>
+<body class="chat-page">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="sidebar-menu-btn" id="sidebarMenuBtn">☰</button>
+    </div>
+    <button class="new-chat-btn" id="newChatButton">
+      <span class="plus">+</span> New chat
+    </button>
+    <div class="history-list">
+      <div class="history-section-title">Recent</div>
+      <div id="historyList"></div>
+    </div>
+    <div class="sidebar-footer">
+      <button id="chatHelpButton"><span>?</span> Help</button>
+      <button id="permissionsButton"><span>🛡️</span> Permissions</button>
+      <button id="settingsToggle"><span>⚙️</span> Settings</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="sidebar-menu-btn" id="topMenuBtn">☰</button>
+        <div class="brand">
+          <span class="sparkle"></span>
+          <span id="brandName">Nova</span>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <span id="status" class="status-pill">Ready</span>
+        <button id="powerToggle" class="icon-btn" title="Turn Nova ON/OFF">ON</button>
+        <button id="networkModeToggle" class="icon-btn hidden" title="Network Mode">Online</button>
+        <!-- Hidden legacy buttons to prevent JS errors -->
+        <button id="chatPageBtn" class="hidden"></button>
+        <button id="voicePageBtn" class="hidden"></button>
+        <button id="clearHistory" class="hidden"></button>
+        <button id="historyToggle" class="hidden"></button>
+        <button id="exportChatButton" class="hidden"></button>
+        <button id="composerMenuButton" class="hidden"></button>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-container" id="chat">
+      <!-- Default welcome message -->
+      <div class="msg nova">
+        <div class="nova-avatar-row">
+          <div class="nova-avatar">
+            <svg viewBox="0 0 24 24"><path d="M12 0L13.8 8.2L22 10L13.8 11.8L12 20L10.2 11.8L2 10L10.2 8.2L12 0Z"/></svg>
+          </div>
+          <div class="msg-content">
+            <h1 id="prompt" style="margin: 0; font-size: 28px; font-weight: 500; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hello, I'm Nova.</h1>
+            <p id="sub" style="color: var(--muted); margin-top: 8px; font-size: 16px;">How can I help you today?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media / File Studio Overlay -->
+    <div class="media-tools-overlay" id="mediaToolsOverlay">
+      <span style="color: var(--muted)">📎</span>
+      <input id="mediaPrompt" type="text" placeholder="Media action (e.g. crop, analyze)">
+      <button id="mediaRun">Run Media Action</button>
+    </div>
+    <input id="mediaFile" type="file" multiple>
+
+    <!-- Floating Input Area -->
+    <div class="input-area">
+      <form id="form" class="input-box">
+        <button type="button" class="attach-btn" id="attachFilesButton" title="Upload image, document or file">⊕</button>
+        <textarea id="text" placeholder="Enter a prompt here" rows="1"></textarea>
+        <div class="action-btns">
+          <button type="button" id="micSmall" title="Use Microphone">🎤</button>
+          <button type="button" id="desktopMic" class="hidden">Desktop Mic</button>
+          <button type="button" id="voiceButton" class="hidden">Voice</button>
+          <button type="button" id="testVoice" class="hidden">Test</button>
+          <select id="voiceSelect" class="hidden"></select>
+          <button type="submit" id="sendButton" class="send-btn" title="Submit">▶</button>
+        </div>
+        <div id="featureSettingsList" class="hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings / Permissions Modal -->
+  <div id="permissionModal" class="modal">
+    <div class="modal-card">
+      <h2 id="permissionTitle">Permission needed</h2>
+      <p id="permissionText">Nova needs confirmation before doing this.</p>
+      <div class="modal-actions">
+        <button id="permissionCancel" class="secondary">Cancel</button>
+        <button id="permissionAllow" class="primary">Allow</button>
+      </div>
+      <button id="permissionClose" class="hidden"></button>
+    </div>
+  </div>
+
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <h2>Nova Locked</h2>
+      <p style="color:var(--muted)">Enter your PIN to continue.</p>
+      <input id="pinInput" type="password" placeholder="PIN">
+      <button id="unlockButton" style="padding: 10px 24px; border-radius: 24px; background: var(--blue); color: #000; border: none; cursor: pointer;">Unlock</button>
+      <p id="lockMessage" style="color: var(--red); margin-top: 12px;"></p>
+    </div>
+  </div>
+
+  <!-- Hidden reader controls to satisfy legacy JS -->
+  <div id="reader" class="hidden">
+    <button id="readerShuffle"></button>
+    <button id="readerPrev"></button>
+    <button id="readerPlay"></button>
+    <button id="readerNext"></button>
+    <button id="readerStop"></button>
+    <button id="readerClose"></button>
+    <input id="readerProgress" type="range">
+    <span id="readerTime"></span>
+  </div>
+  
+  <div class="hidden">
+    <input type="checkbox" id="planModeToggle">
+    <input type="checkbox" id="pursueGoalToggle">
+    <button id="pluginsButton"></button>
+    <button id="settingsClose"></button>
+    <div id="settingsPanel"></div>
+  </div>
+
+  <script>
+    const mic = document.getElementById('mic');
+    const voiceButton = document.getElementById('voiceButton');
+    const micSmall = document.getElementById('micSmall');
+    const desktopMic = document.getElementById('desktopMic');
+    const chatPageBtn = document.getElementById('chatPageBtn');
+    const brandName = document.getElementById('brandName');
+    const voicePageBtn = document.getElementById('voicePageBtn');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const testVoice = document.getElementById('testVoice');
+    const powerToggle = document.getElementById('powerToggle');
+    const networkModeToggle = document.getElementById('networkModeToggle');
+    const statusEl = document.getElementById('status');
+    const promptEl = document.getElementById('prompt');
+    const subEl = document.getElementById('sub');
+    const chat = document.getElementById('chat');
+    const historyList = document.getElementById('historyList');
+    const clearHistory = document.getElementById('clearHistory');
+    const historyToggle = document.getElementById('historyToggle');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsClose = document.getElementById('settingsClose');
+    const featureSettingsList = document.getElementById('featureSettingsList');
+    const newChatButton = document.getElementById('newChatButton');
+    const exportChatButton = document.getElementById('exportChatButton');
+    const chatHelpButton = document.getElementById('chatHelpButton');
+    const composerMenuButton = document.getElementById('composerMenuButton');
+    const composerToolbox = document.getElementById('composerToolbox');
+    const attachFilesButton = document.getElementById('attachFilesButton');
+    const planModeToggle = document.getElementById('planModeToggle');
+    const pursueGoalToggle = document.getElementById('pursueGoalToggle');
+    const pluginsButton = document.getElementById('pluginsButton');
+    const permissionsButton = document.getElementById('permissionsButton');
+    const mediaFile = document.getElementById('mediaFile');
+    const mediaPrompt = document.getElementById('mediaPrompt');
+    const mediaRun = document.getElementById('mediaRun');
+    const form = document.getElementById('form');
+    const text = document.getElementById('text');
+    const sendButton = document.getElementById('sendButton');
+    const reader = document.getElementById('reader');
+    const readerShuffle = document.getElementById('readerShuffle');
+    const readerPrev = document.getElementById('readerPrev');
+    const readerPlay = document.getElementById('readerPlay');
+    const readerNext = document.getElementById('readerNext');
+    const readerStop = document.getElementById('readerStop');
+    const readerClose = document.getElementById('readerClose');
+    const readerProgress = document.getElementById('readerProgress');
+    const readerTime = document.getElementById('readerTime');
+    const permissionModal = document.getElementById('permissionModal');
+    const permissionText = document.getElementById('permissionText');
+    const permissionAllow = document.getElementById('permissionAllow');
+    const permissionCancel = document.getElementById('permissionCancel');
+    const permissionClose = document.getElementById('permissionClose');
+    const lockScreen = document.getElementById('lockScreen');
+    const pinInput = document.getElementById('pinInput');
+    const unlockButton = document.getElementById('unlockButton');
+    const lockMessage = document.getElementById('lockMessage');
+    
+    const sidebar = document.getElementById('sidebar');
+    const topMenuBtn = document.getElementById('topMenuBtn');
+    const sidebarMenuBtn = document.getElementById('sidebarMenuBtn');
+    const mediaToolsOverlay = document.getElementById('mediaToolsOverlay');
+
+    if (topMenuBtn && sidebar) {
+        topMenuBtn.addEventListener('click', () => { sidebar.classList.remove('collapsed'); topMenuBtn.classList.add('hidden'); });
+    }
+    if (sidebarMenuBtn && sidebar) {
+        sidebarMenuBtn.addEventListener('click', () => { sidebar.classList.add('collapsed'); topMenuBtn.classList.remove('hidden'); });
+    }
+    
+    if (attachFilesButton && mediaFile) {
+        attachFilesButton.addEventListener('click', () => { mediaFile.click(); });
+    }
+    if (mediaFile && mediaToolsOverlay) {
+        mediaFile.addEventListener('change', () => {
+          if (mediaFile.files.length > 0) {
+            mediaToolsOverlay.classList.add('active');
+            uploadSelectedMedia(false);
+          } else {
+            mediaToolsOverlay.classList.remove('active');
+          }
+        });
+    }
+
+    if (text) {
+        text.addEventListener('input', () => {
+          text.style.height = 'auto';
+          text.style.height = (text.scrollHeight) + 'px';
+        });
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    let recognition = null;
+    let listening = false;
+    let micWanted = false;
+    let desktopMicWanted = false;
+    let desktopMicStarting = false;
+    let desktopMicStartId = 0;
+    let desktopMicAbort = null;
+    let desktopMicErrorCount = 0;
+    let voiceBusy = false;
+    let speechBusy = false;
+    let speechPlaybackRunId = 0;
+    let readerText = '';
+    let readerLines = [];
+    let readerIndex = 0;
+    let readerPaused = false;
+    let readerActive = false;
+    let readerUtterance = null;
+    let readerManualStop = false;
+    let readerRunId = 0;
+    let readerTimer = null;
+    const readerAudio = new Audio();
+    readerAudio.preload = 'metadata';
+    let readerAudioUrl = '';
+    let readerPlaybackId = 0;
+    let readerPreparing = false;
+    let testVoiceBusy = false;
+    let historyTimer = null;
+    let speechNetworkErrors = 0;
+    let pendingConfirmCommand = '';
+    let pendingPermissionAction = null;
+    let setupPopupShown = false;
+    let shownNeedIds = new Set();
+    let sendBusy = false;
+    let recognitionRestartTimer = null;
+    let accessToken = '';
+    let assistantPowerOn = true;
+    const uiThemeClasses = ['theme-attractive', 'theme-clean', 'theme-midnight', 'theme-emerald', 'theme-light', 'theme-contrast'];
+    function applyUiTheme(theme) {
+      const raw = String(theme || 'clean').toLowerCase();
+      const safe = ['attractive', 'clean', 'midnight', 'emerald', 'light', 'contrast'].includes(raw) ? raw : 'attractive';
+      document.body.classList.remove(...uiThemeClasses);
+      document.body.classList.add('theme-' + safe);
+    }
+    const novaClientId = sessionStorage.getItem('novaClientId') || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `nova-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    sessionStorage.setItem('novaClientId', novaClientId);
+    const novaActivePageKey = 'nova.activePageClient';
+    let thisPageOwnsNova = true;
+
+    function localActivePage() {
+      try {
+        return JSON.parse(localStorage.getItem(novaActivePageKey) || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+    function isPageOwner() {
+      const item = localActivePage();
+      if (!item.id) return true;
+      if (item.id === novaClientId) return true;
+      return Date.now() - Number(item.time || 0) > 45000;
+    }
+    function claimPageOwner(reason = 'active') {
+      thisPageOwnsNova = true;
+      try {
+        localStorage.setItem(novaActivePageKey, JSON.stringify({id: novaClientId, time: Date.now(), reason}));
+      } catch (e) {}
+      fetch('/api/page_session', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({active: true, reason})
+      }).catch(() => {});
+    }
+    function silenceThisStalePage() {
+      if (!thisPageOwnsNova) return;
+      thisPageOwnsNova = false;
+      try { stopAllMic(); } catch (e) {}
+      try { readerAudio.pause(); } catch (e) {}
+      try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+      speechPlaybackRunId += 1;
+      speechBusy = false;
+      readerActive = false;
+      readerPaused = false;
+      setVoiceButtons(false);
+      statusEl.textContent = 'Stale tab';
+      subEl.textContent = 'Another Nova tab is active. This tab is silent now. Click here or refresh to control Nova.';
+    }
+    window.addEventListener('storage', (event) => {
+      if (event.key !== novaActivePageKey) return;
+      const item = localActivePage();
+      if (item.id && item.id !== novaClientId) silenceThisStalePage();
+    });
+    window.addEventListener('focus', () => claimPageOwner('focus'));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) claimPageOwner('visible');
+    });
+    setInterval(() => {
+      if (thisPageOwnsNova && isPageOwner()) claimPageOwner('heartbeat');
+    }, 12000);
+    claimPageOwner('load');
+
+    function setPage(page) {
+      document.body.classList.toggle('voice-page', page === 'voice');
+      document.body.classList.toggle('chat-page', page !== 'voice');
+      voicePageBtn.classList.toggle('active', page === 'voice');
+      chatPageBtn.classList.toggle('active', page !== 'voice');
+      if (page !== 'voice' && micWanted) toggleVoice();
+    }
+
+    function setComposerMenu(open) {
+      composerToolbox.classList.toggle('active', Boolean(open));
+      composerMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+      composerMenuButton.textContent = open ? '\u00D7' : '+';
+    }
+
+    function syncComposerModesFromSettings(items = []) {
+      const plan = items.find(item => item.key === 'plan_mode_enabled');
+      const pursue = items.find(item => item.key === 'pursue_goal_mode_enabled');
+      if (plan) planModeToggle.checked = Boolean(plan.enabled);
+      if (pursue) pursueGoalToggle.checked = Boolean(pursue.enabled);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function authHeaders(extra = {}) {
+      const headers = Object.assign({}, extra);
+      if (accessToken) headers['X-Nova-Token'] = accessToken;
+      headers['X-Nova-Client'] = novaClientId;
+      return headers;
+    }
+    async function copyToClipboard(value) {
+      try {
+        await navigator.clipboard.writeText(value);
+        subEl.textContent = 'Copied.';
+      } catch (e) {
+        text.value = value;
+        text.focus();
+        text.select();
+        subEl.textContent = 'Clipboard blocked, so I placed it in the chat box.';
+      }
+    }
+    
+    function renderMessage(value, kind) {
+      let raw = String(value);
+      let mediaHtml = '';
+
+      raw = raw.replace(/\[NOVA_IMAGE_URL\](.*?)\[\/NOVA_IMAGE_URL\]/g, (m, url) => {
+        mediaHtml += `<div style="margin:12px 0;position:relative;">
+          <img src="${url}" style="max-width:100%;border-radius:12px;cursor:pointer;" onclick="window.open('${url}','_blank')">
+          <div style="margin-top:8px;display:flex;gap:8px;">
+            <button onclick="window.open('${url}','_blank')" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);cursor:pointer;font-size:13px;">Download</button>
+            <button onclick="this.closest('.msg').remove()" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--red);cursor:pointer;font-size:13px;">Delete</button>
+          </div>
+        </div>`;
+        return '';
+      });
+
+      raw = raw.replace(/\[NOVA_IMAGE\](.*?)\[\/NOVA_IMAGE\]/g, (m, filePath) => {
+        const apiUrl = '/api/file?path=' + encodeURIComponent(filePath);
+        mediaHtml += `<div style="margin:12px 0;position:relative;">
+          <img src="${apiUrl}" style="max-width:100%;border-radius:12px;cursor:pointer;" onclick="window.open('${apiUrl}','_blank')">
+          <div style="margin-top:8px;display:flex;gap:8px;">
+            <button onclick="window.open('${apiUrl}','_blank')" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);cursor:pointer;font-size:13px;">Download</button>
+            <button onclick="this.closest('.msg').remove()" style="padding:6px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--red);cursor:pointer;font-size:13px;">Delete</button>
+          </div>
+        </div>`;
+        return '';
+      });
+
+      const parts = raw.split(/```([\s\S]*?)```/g);
+      const textHtml = parts.map((part, index) => {
+        if (index % 2 === 1) {
+          const code = part.replace(/^[a-zA-Z0-9_+-]+\n/, '');
+          return `<pre><code>${escapeHtml(code.trim())}</code></pre>`;
+        }
+        let t = escapeHtml(part);
+        t = t.replace(/([A-Z]:\\[^\s<"']+\.(?:png|jpe?g|gif|webp))/gi, (match, p1) => {
+           const u = '/api/file?path=' + encodeURIComponent(p1);
+           return `<br><img src="${u}" style="max-width:100%;border-radius:12px;margin-top:10px;cursor:pointer;" onclick="window.open('${u}','_blank')">`;
+        });
+        t = t.replace(/([A-Z]:\\[^\s<"']+\.(?:mp4|webm))/gi, (match, p1) => {
+           const u = '/api/file?path=' + encodeURIComponent(p1);
+           return `<br><video src="${u}" controls style="max-width:100%;border-radius:12px;margin-top:10px;"></video>`;
+        });
+        return t;
+      }).join('');
+
+      return mediaHtml + textHtml;
+    }
+
+    function makeActionButton(label, title, fn) {
+      const btn = document.createElement('button');
+      btn.className = 'icon-btn';
+      btn.type = 'button';
+      btn.title = title;
+      btn.textContent = label;
+      btn.addEventListener('click', fn);
+      return btn;
+    }
+    
+    function trimChat() {
+      while (chat.children.length > 80) chat.removeChild(chat.firstElementChild);
+    }
+    
+    function add(kind, value, userText = '') {
+      const wrapper = document.createElement('div');
+      wrapper.className = `msg ${kind}`;
+      
+      if (kind === 'nova') {
+        const row = document.createElement('div');
+        row.className = 'nova-avatar-row';
+        
+        const av = document.createElement('div');
+        av.className = 'nova-avatar';
+        av.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 0L13.8 8.2L22 10L13.8 11.8L12 20L10.2 11.8L2 10L10.2 8.2L12 0Z"/></svg>`;
+        
+        const content = document.createElement('div');
+        content.className = 'msg-content';
+        content.innerHTML = renderMessage(value, kind);
+        
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.appendChild(makeActionButton('\uD83D\uDCC4', 'Copy answer', () => copyToClipboard(value)));
+        actions.appendChild(makeActionButton('\uD83D\uDD0A', 'Read this answer', () => openReader(value)));
+        if (userText) actions.appendChild(makeActionButton('\uD83D\uDD04', 'Regenerate', () => send(userText)));
+        content.appendChild(actions);
+        
+        row.appendChild(av);
+        row.appendChild(content);
+        wrapper.appendChild(row);
+        
+        const welcome = document.getElementById('prompt');
+        if (welcome && welcome.parentElement && welcome.parentElement.parentElement && welcome.parentElement.parentElement.parentElement) {
+            welcome.parentElement.parentElement.parentElement.style.display = 'none';
+        }
+      } else {
+        wrapper.innerHTML = renderMessage(value, kind);
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.appendChild(makeActionButton('\u270E', 'Edit', () => { text.value = value; text.focus(); }));
+        wrapper.appendChild(actions);
+      }
+      
+      chat.appendChild(wrapper);
+      trimChat();
+      requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+    }
+
+    async function feedback(kind, user, assistant) {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({kind, user, assistant})
+      });
+      subEl.textContent = kind === 'like' ? 'Saved as helpful.' : 'Saved feedback.';
+      loadHistory();
+    }
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+    }
+    async function uploadSelectedMedia(analyze = false) {
+      const files = Array.from(mediaFile.files || []);
+      if (!files.length) {
+        add('nova', 'Select a file, photo, or video first.');
+        return;
+      }
+      mediaRun.disabled = true;
+      subEl.textContent = `Uploading ${files.length} file(s) to local Nova folder...`;
+      try {
+        for (const file of files) {
+          const dataUrl = await readFileAsDataUrl(file);
+          const res = await fetch('/api/media/upload', {
+            method: 'POST',
+            headers: authHeaders({'Content-Type': 'application/json'}),
+            body: JSON.stringify({filename: file.name, data: dataUrl, analyze, prompt: mediaPrompt.value || ''})
+          });
+          const data = await res.json();
+          if (res.status === 403) {
+            setLocked(true);
+            throw new Error(data.reply || 'Nova is locked.');
+          }
+          if (!res.ok || data.ok === false) throw new Error(data.reply || data.error || 'Upload failed');
+          add('nova', data.reply || 'File uploaded.');
+        }
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+      } catch (e) {
+        add('nova', 'File upload failed: ' + e.message);
+      } finally {
+        mediaRun.disabled = false;
+      }
+    }
+    async function runSmartMediaTask() {
+      const files = Array.from(mediaFile.files || []);
+      const prompt = (mediaPrompt.value || '').trim();
+      if (!files.length && !prompt) {
+        add('nova', 'Select a photo/video/file or type a prompt first.');
+        return;
+      }
+      mediaRun.disabled = true;
+      mediaRun.textContent = '...';
+      subEl.textContent = files.length ? `Working on ${files.length} selected file(s)...` : 'Creating from prompt...';
+      try {
+        const payloadFiles = [];
+        for (const file of files) {
+          const dataUrl = await readFileAsDataUrl(file);
+          payloadFiles.push({filename: file.name, type: file.type || '', data: dataUrl});
+        }
+        const res = await fetch('/api/media/run', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({prompt, files: payloadFiles})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || data.ok === false) throw new Error(data.reply || data.error || 'Media task failed');
+        add('you', prompt || `Selected ${files.length} file(s)`);
+        add('nova', data.reply || 'Done.', prompt);
+        subEl.textContent = 'Media task complete.';
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+      } catch (e) {
+        add('nova', 'Media task failed: ' + e.message);
+        subEl.textContent = 'Media task failed.';
+      } finally {
+        mediaRun.disabled = false;
+        mediaRun.textContent = '\u25B6';
+      }
+    }
+    function formatReaderTime(value) {
+      const seconds = Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
+      return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    }
+    function updateReader() {
+      const duration = Number.isFinite(readerAudio.duration) ? readerAudio.duration : 0;
+      const current = Number.isFinite(readerAudio.currentTime) ? readerAudio.currentTime : 0;
+      readerProgress.max = Math.max(0, duration);
+      readerProgress.value = Math.min(current, Math.max(0, duration));
+      readerTime.textContent = `${formatReaderTime(current)} / ${formatReaderTime(duration)}`;
+      readerPlay.textContent = readerActive && !readerPaused ? '\u275A\u275A' : '\u25B6';
+      const hasAudio = Boolean(readerAudioUrl);
+      [readerShuffle, readerPrev, readerPlay, readerNext, readerStop, readerProgress].forEach(el => el.disabled = !hasAudio || readerPreparing);
+    }
+    async function stopReader(keepOpen = true) {
+      readerManualStop = true;
+      readerRunId += 1;
+      clearTimeout(readerTimer);
+      readerTimer = null;
+      try { readerAudio.pause(); } catch (e) {}
+      try { readerAudio.currentTime = 0; } catch (e) {}
+      readerUtterance = null;
+      readerActive = false;
+      readerPaused = false;
+      readerPreparing = false;
+      finishSpeechPlayback(readerPlaybackId);
+      updateReader();
+      if (!keepOpen) reader.classList.remove('active');
+      await cancelSpeechPlayback();
+      subEl.textContent = keepOpen ? 'Voice stopped.' : 'Voice control bar closed.';
+    }
+    async function prepareReaderAudio(value) {
+      const runId = ++readerRunId;
+      readerPreparing = true;
+      readerManualStop = false;
+      readerText = String(value || '').trim();
+      readerAudioUrl = '';
+      try { readerAudio.pause(); } catch (e) {}
+      try { readerAudio.removeAttribute('src'); readerAudio.load(); } catch (e) {}
+      updateReader();
+      const preparationPlaybackId = beginSpeechPlayback();
+      subEl.textContent = 'Preparing local seekable voice...';
+      try {
+        await fetch('/api/stop_speech', {method: 'POST', headers: authHeaders()});
+        const res = await fetch('/api/reader_audio', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({text: readerText})
+        });
+        const data = await res.json().catch(() => ({ok: res.ok}));
+        if (!res.ok || data.ok === false || !data.url) throw new Error(data.error || 'Reader audio generation failed');
+        if (runId !== readerRunId || readerManualStop) return;
+        readerAudioUrl = data.url;
+        readerAudio.src = readerAudioUrl;
+        readerAudio.load();
+        subEl.textContent = 'Reader audio ready.';
+        await playReaderAudio();
+      } catch (e) {
+        if (runId !== readerRunId || readerManualStop) return;
+        readerAudioUrl = '';
+        subEl.textContent = 'No sound from Windows voice. Check Windows output device.';
+        add('nova', 'Voice output failed: ' + e.message + '. Try: open sound settings, unmute speaker, choose the correct output device, then press Read again.');
+      } finally {
+        readerPreparing = false;
+        finishSpeechPlayback(preparationPlaybackId);
+        updateReader();
+      }
+    }
+    async function playReaderAudio() {
+      if (!readerAudioUrl) {
+        subEl.textContent = 'Nothing to read in this answer.';
+        updateReader();
+        return;
+      }
+      readerManualStop = false;
+      readerActive = true;
+      readerPaused = false;
+      readerPlaybackId = beginSpeechPlayback();
+      updateReader();
+      subEl.textContent = 'Reading selected answer...';
+      try {
+        await readerAudio.play();
+      } catch (e) {
+        if (readerManualStop) return;
+        readerActive = false;
+        readerPaused = true;
+        updateReader();
+        finishSpeechPlayback(readerPlaybackId);
+        subEl.textContent = 'Playback was blocked. Press Play once to allow browser audio.';
+      }
+    }
+    function openReader(value) {
+      if (readerText === value && (readerActive || readerPaused)) {
+        stopReader(true);
+        return;
+      }
+      readerText = value;
+      reader.classList.add('active');
+      prepareReaderAudio(value);
+    }
+    async function pauseResumeReader() {
+      if (!readerAudioUrl) return;
+      if (readerActive && !readerPaused) {
+        try { readerAudio.pause(); } catch (e) {}
+        readerPaused = true;
+        readerActive = false;
+        finishSpeechPlayback(readerPlaybackId);
+        subEl.textContent = 'Reading paused.';
+        updateReader();
+      } else {
+        await playReaderAudio();
+      }
+    }
+    function moveReader(seconds) {
+      if (!readerAudioUrl) return;
+      const duration = Number.isFinite(readerAudio.duration) ? readerAudio.duration : Number.MAX_SAFE_INTEGER;
+      readerAudio.currentTime = Math.max(0, Math.min(duration, (readerAudio.currentTime || 0) + seconds));
+      updateReader();
+      subEl.textContent = `${seconds > 0 ? 'Forward' : 'Back'} ${Math.abs(seconds)} seconds.`;
+    }
+    readerAudio.addEventListener('loadedmetadata', updateReader);
+    readerAudio.addEventListener('durationchange', updateReader);
+    readerAudio.addEventListener('timeupdate', updateReader);
+    readerAudio.addEventListener('ended', () => {
+      readerActive = false;
+      readerPaused = false;
+      finishSpeechPlayback(readerPlaybackId);
+      subEl.textContent = 'Read complete.';
+      updateReader();
+    });
+    function showPermissionPopup(message, confirmCommand, onAllow = null) {
+      pendingConfirmCommand = confirmCommand || '';
+      pendingPermissionAction = typeof onAllow === 'function' ? onAllow : null;
+      permissionText.textContent = message || 'Nova needs confirmation before doing this.';
+      permissionAllow.textContent = (pendingConfirmCommand || pendingPermissionAction) ? 'Allow' : 'OK';
+      permissionModal.classList.add('active');
+      permissionAllow.focus();
+    }
+    function hidePermissionPopup() {
+      permissionModal.classList.remove('active');
+      pendingConfirmCommand = '';
+      pendingPermissionAction = null;
+      permissionAllow.textContent = 'Allow';
+    }
+    function setLocked(locked) {
+      lockScreen.classList.toggle('active', locked);
+      if (locked) {
+        pinInput.focus();
+        setPowerState(false);
+      }
+    }
+    async function unlockNova() {
+      const pin = pinInput.value.trim();
+      if (!pin) {
+        lockMessage.textContent = 'Enter your PIN.';
+        return;
+      }
+      unlockButton.disabled = true;
+      try {
+        const res = await fetch('/api/unlock', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({pin})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          lockMessage.textContent = data.message || 'Wrong PIN.';
+          return;
+        }
+        accessToken = data.token || '';
+        pinInput.value = '';
+        lockMessage.textContent = '';
+        setLocked(false);
+        refreshApiStatus();
+        loadHistory();
+      } catch (e) {
+        lockMessage.textContent = 'Unlock failed. Keep Nova terminal open.';
+      } finally {
+        unlockButton.disabled = false;
+      }
+    }
+    function setVoiceButtons(active) {
+      voiceButton.textContent = active ? 'Stop Voice' : 'Start Voice';
+      micSmall.textContent = active ? 'Stop' : 'Mic';
+      desktopMic.textContent = active ? 'Stop Mic' : 'Desktop Mic';
+      statusEl.textContent = active ? 'Listening' : 'Ready';
+      mic.classList.toggle('listening', active);
+    }
+    function stopBrowserRecognition() {
+      micWanted = false;
+      clearTimeout(recognitionRestartTimer);
+      try { if (recognition) recognition.abort(); } catch (e) {}
+      try { if (recognition) recognition.stop(); } catch (e) {}
+    }
+    function stopDesktopMicLoop() {
+      desktopMicWanted = false;
+      desktopMicStarting = false;
+      abortDesktopMicCapture();
+      releaseVoiceSession();
+      desktopMic.disabled = false;
+    }
+    function abortDesktopMicCapture() {
+      const controller = desktopMicAbort;
+      desktopMicAbort = null;
+      if (!controller) return;
+      try { controller.abort(); } catch (e) {}
+    }
+    function suspendMicCaptureForSpeech() {
+      abortDesktopMicCapture();
+      try { if (recognition) recognition.abort(); } catch (e) {}
+    }
+    function beginSpeechPlayback() {
+      const playbackId = ++speechPlaybackRunId;
+      speechBusy = true;
+      suspendMicCaptureForSpeech();
+      return playbackId;
+    }
+    function finishSpeechPlayback(playbackId) {
+      if (playbackId !== speechPlaybackRunId) return;
+      speechBusy = false;
+      if (micWanted && !desktopMicWanted) scheduleRecognitionStart(180);
+    }
+    async function cancelSpeechPlayback() {
+      speechPlaybackRunId += 1;
+      speechBusy = false;
+      try { await fetch('/api/stop_speech', {method: 'POST', headers: authHeaders()}); } catch (e) {}
+      if ('speechSynthesis' in window) {
+        try { speechSynthesis.cancel(); } catch (e) {}
+      }
+      if (micWanted && !desktopMicWanted) scheduleRecognitionStart(180);
+    }
+    function stopAllMic() {
+      voiceBusy = false;
+      speechNetworkErrors = 0;
+      desktopMicErrorCount = 0;
+      desktopMicStarting = false;
+      desktopMicStartId += 1;
+      stopBrowserRecognition();
+      stopDesktopMicLoop();
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      setVoiceButtons(false);
+    }
+    function setPowerState(enabled) {
+      assistantPowerOn = Boolean(enabled);
+      powerToggle.textContent = assistantPowerOn ? 'ON' : 'OFF';
+      powerToggle.classList.toggle('off', !assistantPowerOn);
+      powerToggle.setAttribute('aria-pressed', assistantPowerOn ? 'true' : 'false');
+      powerToggle.title = assistantPowerOn ? 'Turn Nova assistant off' : 'Turn Nova assistant on';
+      if (!assistantPowerOn && (micWanted || desktopMicWanted)) {
+        stopAllMic();
+        promptEl.textContent = 'Assistant off.';
+      }
+    }
+    function setNetworkModeState(mode) {
+      const offline = String(mode || 'online').toLowerCase() === 'offline';
+      networkModeToggle.textContent = offline ? 'Offline' : 'Online';
+      networkModeToggle.classList.toggle('offline', offline);
+      networkModeToggle.setAttribute('aria-pressed', offline ? 'false' : 'true');
+      networkModeToggle.title = offline
+        ? 'Nova Offline mode is active. Click to enable Wi-Fi and online assistant mode.'
+        : 'Nova Online mode is active. Click to turn Wi-Fi off and use offline assistant mode.';
+    }
+    async function setConnectivityMode(mode) {
+      networkModeToggle.disabled = true;
+      try {
+        const res = await fetch('/api/connectivity_mode', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({mode})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        setNetworkModeState((data.status || {}).mode || mode);
+        add('nova', data.reply || 'Connectivity mode updated.');
+        subEl.textContent = data.reply || 'Connectivity mode updated.';
+        refreshApiStatus();
+      } catch (e) {
+        add('nova', 'Connectivity mode change failed: ' + e.message);
+        subEl.textContent = 'Connectivity mode change failed.';
+      } finally {
+        networkModeToggle.disabled = false;
+      }
+    }
+    function requestConnectivityModeChange() {
+      const nextMode = networkModeToggle.classList.contains('offline') ? 'online' : 'offline';
+      const message = nextMode === 'offline'
+        ? 'Offline Assistant mode will disable Nova online AI calls and try to turn Wi-Fi OFF. Windows may show an administrator permission popup. Do you really want to continue?'
+        : 'Online Assistant mode will turn Wi-Fi ON and reconnect only to an already-saved Windows Wi-Fi profile. Windows may show an administrator permission popup. Do you really want to continue?';
+      showPermissionPopup(message, '', async () => setConnectivityMode(nextMode));
+    }
+    function scheduleRecognitionStart(delay = 120) {
+      clearTimeout(recognitionRestartTimer);
+      if (!recognition || !micWanted || voiceBusy || speechBusy || readerActive) return;
+      recognitionRestartTimer = setTimeout(() => {
+        if (!recognition || !micWanted || voiceBusy || speechBusy || readerActive || listening) return;
+        try {
+          recognition.start();
+        } catch (e) {
+          if (!String(e && e.name || e).includes('InvalidStateError')) {
+            subEl.textContent = 'Mic could not start yet. I will keep trying until you press Stop Voice.';
+            showPermissionPopup('Nova could not start the browser microphone yet. Allow microphone permission in the browser/Windows popup. I will keep retrying until you press Stop Voice.', '');
+            scheduleRecognitionStart(1800);
+          }
+        }
+      }, delay);
+    }
+    async function backendSpeak(value) {
+      if (!isPageOwner()) {
+        silenceThisStalePage();
+        return;
+      }
+      if (readerActive || readerPaused) await stopReader(true);
+      const playbackId = beginSpeechPlayback();
+      try {
+        const res = await fetch('/api/speak_sync', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({text: value})
+        });
+        const data = await res.json().catch(() => ({ok: res.ok}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'voice failed');
+        return;
+      } catch (e) {
+        if (playbackId !== speechPlaybackRunId || readerActive || readerPaused) return;
+        subEl.textContent = 'Windows voice could not speak. Check terminal for error.';
+      } finally {
+        finishSpeechPlayback(playbackId);
+      }
+    }
+    async function claimVoiceSession() {
+      try {
+        const res = await fetch('/api/voice_session', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({active: true})
+        });
+        const data = await res.json();
+        return Boolean(res.ok && data.ok);
+      } catch (e) {
+        subEl.textContent = 'Nova could not claim the microphone session. Keep the terminal open and try again.';
+        return false;
+      }
+    }
+    function releaseVoiceSession() {
+      fetch('/api/voice_session', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({active: false})
+      }).catch(() => {});
+    }
+    async function loadVoices() {
+      try {
+        const res = await fetch('/api/voices');
+        const data = await res.json();
+        voiceSelect.innerHTML = '';
+        if (!data.voices || !data.voices.length) {
+          const opt = document.createElement('option');
+          opt.textContent = 'Default Windows voice';
+          opt.value = '';
+          voiceSelect.appendChild(opt);
+          return;
+        }
+        data.voices.forEach(v => {
+          const opt = document.createElement('option');
+          const detail = (data.details || []).find(item => item.name === v) || {};
+          opt.textContent = detail.culture ? `${v} (${detail.culture})` : v;
+          opt.value = v;
+          if (v === data.selected) opt.selected = true;
+          voiceSelect.appendChild(opt);
+        });
+        if (!data.hindi_voice_available) {
+          const opt = document.createElement('option');
+          opt.textContent = 'Hindi voice not installed - say setup Hindi voice';
+          opt.value = '';
+          voiceSelect.appendChild(opt);
+        }
+      } catch (e) {
+        voiceSelect.innerHTML = '<option>Voice list unavailable</option>';
+      }
+    }
+    async function loadHistory() {
+      if (loadHistory.loading) return;
+      loadHistory.loading = true;
+      try {
+        const res = await fetch('/api/history', {headers: authHeaders()});
+        const data = await res.json();
+        historyList.innerHTML = '';
+        if (!data.items || !data.items.length) {
+          historyList.innerHTML = '<div class="history-item">No history yet<small>Your searches and chats will appear here.</small></div>';
+          return;
+        }
+        data.items.slice(-10).reverse().forEach(item => {
+          const btn = document.createElement('button');
+          btn.className = 'history-item';
+          btn.type = 'button';
+          btn.innerHTML = `${escapeHtml(item.user).slice(0, 80)}<small>${escapeHtml(item.assistant).slice(0, 120)}</small>`;
+          btn.addEventListener('click', () => {
+            text.value = item.user;
+            add('you', item.user);
+            add('nova', item.assistant, item.user);
+          });
+          historyList.appendChild(btn);
+        });
+      } catch (e) {
+        historyList.innerHTML = '<div class="history-item">History unavailable</div>';
+      } finally {
+        loadHistory.loading = false;
+      }
+    }
+    function applyFeatureSideEffects(key, enabled) {
+      if (key === 'voice_enabled' && !enabled) stopAllMic();
+      if (key === 'assistant_enabled') setPowerState(enabled);
+      if (key === 'control_mode' && !enabled) subEl.textContent = 'Laptop control is OFF.';
+    }
+    async function updateFeatureSetting(key, enabled, checkbox) {
+      try {
+        const res = await fetch('/api/feature_settings', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({key, enabled})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || data.ok === false) throw new Error(data.reply || 'Setting failed');
+        applyFeatureSideEffects(key, enabled);
+        if (key === 'plan_mode_enabled') planModeToggle.checked = Boolean(enabled);
+        if (key === 'pursue_goal_mode_enabled') pursueGoalToggle.checked = Boolean(enabled);
+        subEl.textContent = data.reply || 'Setting updated.';
+        if (checkbox) checkbox.checked = Boolean(enabled);
+        if (data.settings) renderFeatureSettings(data.settings.items || []);
+        refreshApiStatus();
+      } catch (e) {
+        if (checkbox) checkbox.checked = !enabled;
+        add('nova', 'Setting update failed: ' + e.message);
+      }
+    }
+    function renderFeatureSettings(items) {
+      syncComposerModesFromSettings(items);
+      featureSettingsList.innerHTML = '';
+      if (!items.length) {
+        featureSettingsList.innerHTML = '<div class="history-item">No settings available</div>';
+        return;
+      }
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'setting-item';
+        const info = document.createElement('div');
+        info.innerHTML = `<strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small>`;
+        const label = document.createElement('label');
+        label.className = 'switch';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = Boolean(item.enabled);
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        label.appendChild(input);
+        label.appendChild(slider);
+        input.addEventListener('change', () => {
+          const wantsOn = input.checked;
+          if (!wantsOn) {
+            updateFeatureSetting(item.key, false, input);
+            return;
+          }
+          input.checked = false;
+          showPermissionPopup(
+            `${item.label}: ${item.description}\n\nDo you really want to turn this ON?`,
+            '',
+            async () => updateFeatureSetting(item.key, true, input)
+          );
+        });
+        row.appendChild(info);
+        row.appendChild(label);
+        featureSettingsList.appendChild(row);
+      });
+    }
+    async function loadFeatureSettings() {
+      try {
+        const res = await fetch('/api/feature_settings', {headers: authHeaders()});
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          return;
+        }
+        syncComposerModesFromSettings(data.items || []);
+        renderFeatureSettings(data.items || []);
+      } catch (e) {
+        featureSettingsList.innerHTML = '<div class="history-item">Settings unavailable</div>';
+      }
+    }
+    function toggleHistoryPanel() {
+      document.body.classList.toggle('history-open');
+      if (document.body.classList.contains('history-open')) {
+        document.body.classList.remove('settings-open');
+        loadHistory();
+      }
+    }
+    function toggleSettingsPanel() {
+      document.body.classList.toggle('settings-open');
+      if (document.body.classList.contains('settings-open')) {
+        document.body.classList.remove('history-open');
+        loadFeatureSettings();
+      }
+    }
+    function openSettingsPanel(message = '') {
+      document.body.classList.add('settings-open');
+      document.body.classList.remove('history-open');
+      loadFeatureSettings();
+      if (message) subEl.textContent = message;
+    }
+    function toggleComposerFeature(key, checkbox, label, description, exclusiveKey = '', exclusiveCheckbox = null) {
+      const wantsOn = checkbox.checked;
+      if (!wantsOn) {
+        updateFeatureSetting(key, false, checkbox);
+        return;
+      }
+      checkbox.checked = false;
+      showPermissionPopup(
+        `${label}: ${description}\n\nDo you really want to turn this ON?`,
+        '',
+        async () => {
+          if (exclusiveKey && exclusiveCheckbox && exclusiveCheckbox.checked) {
+            await updateFeatureSetting(exclusiveKey, false, exclusiveCheckbox);
+          }
+          await updateFeatureSetting(key, true, checkbox);
+        }
+      );
+    }
+    async function refreshApiStatus() {
+      try {
+        const [statusRes, networkRes] = await Promise.all([fetch('/api/status'), fetch('/api/network')]);
+        const data = await statusRes.json();
+        const network = await networkRes.json();
+        const laptop = data.laptop_connected ? 'Laptop connected. ' : 'Laptop not connected. ';
+        const local = data.local_only_mode ? 'Local-only. ' : '';
+        const mobile = data.mobile_mode && data.mobile_url ? ` Mobile: ${data.mobile_url}` : '';
+        setNetworkModeState(data.assistant_network_mode || network.mode || 'online');
+        brandName.textContent = data.assistant_display_name || 'Nova Assistant';
+        applyUiTheme(data.ui_theme || 'clean');
+        if (data.access_lock_enabled && !accessToken) setLocked(true);
+        setPowerState(Boolean(data.assistant_enabled));
+        if (data.online) {
+          const first = data.order && data.order.length ? data.order[0] : 'API';
+          statusEl.textContent = `${network.online ? 'Online' : 'Net?'}: ${first}`;
+          subEl.textContent = `${local}${laptop}Brain connected: ${data.order.join(', ')}.${mobile}`;
+        } else {
+          statusEl.textContent = network.online ? 'API offline' : 'Offline';
+          subEl.textContent = local + laptop + (data.message || 'Add an API key in .env for online thinking.') + mobile;
+        }
+        const needs = Array.isArray(data.needs) ? data.needs : [];
+        const actionableNeed = needs.find(item => item.confirmCommand && !shownNeedIds.has(item.id));
+        const infoNeed = needs.find(item => !item.confirmCommand && !shownNeedIds.has(item.id));
+        const need = actionableNeed || infoNeed;
+        if (need) {
+          shownNeedIds.add(need.id);
+          showPermissionPopup(`${need.title}: ${need.message} This stays on this laptop only.`, need.confirmCommand || '');
+        }
+      } catch (e) {
+        statusEl.textContent = 'Status error';
+      }
+    }
+    async function checkNetworkMessage() {
+      if (!navigator.onLine) return 'Browser is offline. Check Wi-Fi.';
+      try {
+        const res = await fetch('/api/network');
+        const data = await res.json();
+        return data.message || 'Network checked.';
+      } catch (e) {
+        return 'Browser could not reach Nova network checker.';
+      }
+    }
+    async function send(command, fromVoice = false) {
+      command = (command || '').trim();
+      if (!command) return;
+      if (fromVoice && !isPageOwner()) {
+        silenceThisStalePage();
+        return;
+      }
+      if (!fromVoice) claimPageOwner('send');
+      if (fromVoice && /^(stop voice|stop mic|stop listening|mic off|voice off|band mic|mic band|voice band|sunna band|listening band)$/i.test(command)) {
+        stopAllMic();
+        add('you', command);
+        add('nova', 'Voice stopped. Click Start Voice again when you want me to listen.');
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF by your command.';
+        return;
+      }
+      if (sendBusy) {
+        subEl.textContent = 'Still working on the previous command.';
+        return;
+      }
+      sendBusy = true;
+      sendButton.disabled = true;
+      if (fromVoice) {
+        voiceBusy = true;
+        try { recognition.stop(); } catch (e) {}
+        subEl.textContent = `Heard: ${command}`;
+      }
+      add('you', command);
+      promptEl.textContent = 'Working on it...';
+      statusEl.textContent = 'Thinking';
+      if (/\b(wifi|wi-fi|wi fi|bluetooth|blue tooth)\b/i.test(command) && /\b(on|off|enable|disable|turn on|turn off|switch on|switch off)\b/i.test(command)) {
+        subEl.textContent = 'Windows permission popup may appear. Press Yes to allow Nova, then I will verify the result.';
+      }
+      try {
+        const res = await fetch('/api/command', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({
+            command,
+            planMode: Boolean(planModeToggle.checked),
+            pursueGoal: Boolean(pursueGoalToggle.checked)
+          })
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Locked');
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const reply = data.reply || 'Nova did not return a reply.';
+        if (data.duplicate) {
+          promptEl.textContent = 'Duplicate ignored.';
+          subEl.textContent = 'The same command was already received. Nova ran it only once.';
+          statusEl.textContent = 'Ready';
+          return;
+        }
+        add('nova', reply, command);
+        promptEl.textContent = reply.length > 62 ? 'Done.' : reply;
+        if (data.needsConfirm) {
+          subEl.textContent = 'Permission needed on screen.';
+          showPermissionPopup(reply, data.confirmCommand);
+        } else if (data.needsPermission) {
+          subEl.textContent = 'Permission or setting needed.';
+          showPermissionPopup(reply, '');
+        } else {
+          subEl.textContent = 'Say another command.';
+        }
+        if (/Assistant is ON/i.test(reply)) setPowerState(true);
+        if (/Assistant is OFF/i.test(reply)) setPowerState(false);
+        statusEl.textContent = 'Ready';
+        const shouldSpeakReply = fromVoice || document.body.classList.contains('voice-page');
+        const replyAlreadySpeaking = /^Reading the last assistant answer/i.test(reply);
+        if (shouldSpeakReply && !replyAlreadySpeaking) {
+          if (reply.length < 360 && !reply.includes('```')) await backendSpeak(reply);
+          else await backendSpeak('I wrote the full answer in chat. Use the read button if you want me to read it.');
+        }
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(loadHistory, 450);
+        if (data.exit) setTimeout(() => window.close(), 500);
+      } catch (e) {
+        const message = 'Nova server did not answer. Keep the terminal open, then try again.';
+        add('nova', message, command);
+        promptEl.textContent = 'Connection issue.';
+        subEl.textContent = message;
+        statusEl.textContent = 'Error';
+      } finally {
+        sendBusy = false;
+        sendButton.disabled = false;
+        if (fromVoice) {
+          setTimeout(() => {
+            voiceBusy = false;
+            scheduleRecognitionStart(120);
+          }, 900);
+        }
+      }
+    }
+    function setupRecognition() {
+      if (!SpeechRecognition) {
+        subEl.textContent = 'Browser voice needs Chrome or Edge. Use Desktop Mic instead.';
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        listening = true;
+        setVoiceButtons(true);
+        promptEl.textContent = 'Browser listening...';
+      };
+      recognition.onend = () => {
+        listening = false;
+        if (!micWanted) setVoiceButtons(false);
+      };
+      recognition.onerror = (event) => {
+        listening = false;
+        if (!micWanted) return;
+        if (event.error === 'no-speech') {
+          subEl.textContent = 'No speech heard. Mic is still ON. Click Stop Voice to turn it OFF, or speak again.';
+          scheduleRecognitionStart(450);
+          return;
+        }
+        if (event.error === 'network') {
+          speechNetworkErrors += 1;
+          subEl.textContent = 'Browser speech network issue. Mic mode is still ON; I will retry. Desktop Mic is usually better.';
+          scheduleRecognitionStart(Math.min(4500, 900 + speechNetworkErrors * 500));
+          return;
+        }
+        if (event.error === 'audio-capture') {
+          subEl.textContent = 'No microphone found. Check Windows input device.';
+          showPermissionPopup('No microphone is available to the browser. Check Windows input device or allow microphone permission. I will keep retrying until you press Stop Voice.', '');
+          scheduleRecognitionStart(2200);
+          return;
+        }
+        if (event.error === 'not-allowed') {
+          subEl.textContent = 'Microphone permission blocked. Allow mic in browser address bar, or use Desktop Mic.';
+          showPermissionPopup('Microphone permission is blocked. Use the browser address bar mic icon and choose Allow. I will keep the mic mode ON and retry until you press Stop Voice.', '');
+          scheduleRecognitionStart(2200);
+          return;
+        }
+        subEl.textContent = `Mic issue: ${event.error}. Click Stop Voice to turn OFF.`;
+      };
+      recognition.onresult = (event) => {
+        const last = event.results[event.results.length - 1];
+        const command = last[0].transcript;
+        speechNetworkErrors = 0;
+        subEl.textContent = `Heard: ${command}`;
+        try { recognition.stop(); } catch (e) {}
+        send(command, true);
+      };
+    }
+
+    async function setPowerFromButton() {
+      const nextEnabled = !assistantPowerOn;
+      powerToggle.disabled = true;
+      const oldLabel = powerToggle.textContent;
+      powerToggle.textContent = nextEnabled ? 'ON...' : 'OFF...';
+      try {
+        const res = await fetch('/api/power', {
+          method: 'POST',
+          headers: authHeaders({'Content-Type': 'application/json'}),
+          body: JSON.stringify({enabled: nextEnabled})
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          setLocked(true);
+          throw new Error(data.reply || 'Nova is locked.');
+        }
+        if (!res.ok || !data.ok) throw new Error(data.reply || 'Power change failed');
+        setPowerState(Boolean(data.enabled));
+        const reply = data.reply || (data.enabled ? 'Assistant is ON.' : 'Assistant is OFF.');
+        add('nova', reply);
+        promptEl.textContent = data.enabled ? 'Ready.' : 'Assistant off.';
+        subEl.textContent = data.enabled ? 'ON/OFF button fixed. Say or type a command.' : 'Assistant control is paused. Press ON to enable.';
+        statusEl.textContent = data.enabled ? 'Ready' : 'Paused';
+      } catch (e) {
+        powerToggle.textContent = oldLabel;
+        subEl.textContent = 'ON/OFF button failed: ' + e.message;
+        await send(nextEnabled ? 'assistant on' : 'assistant off');
+      } finally {
+        powerToggle.disabled = false;
+        refreshApiStatus();
+      }
+    }
+
+    async function desktopListen() {
+      claimPageOwner('voice');
+      if (!assistantPowerOn || powerToggle.classList.contains('off')) {
+        subEl.textContent = 'Assistant is OFF. Press ON first.';
+        return;
+      }
+      if (desktopMicWanted || desktopMicStarting) {
+        stopAllMic();
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF. Click Start Voice once to turn ON again.';
+        return;
+      }
+      const startId = ++desktopMicStartId;
+      desktopMicStarting = true;
+      stopBrowserRecognition();
+      let sessionClaimed = false;
+      try {
+        sessionClaimed = await claimVoiceSession();
+      } catch (e) {
+        sessionClaimed = false;
+      }
+      desktopMicStarting = false;
+      if (startId !== desktopMicStartId) {
+        releaseVoiceSession();
+        return;
+      }
+      if (!sessionClaimed) {
+        subEl.textContent = 'Microphone session could not start. Refresh this Nova page once, then try again.';
+        return;
+      }
+      desktopMicWanted = true;
+      desktopMicErrorCount = 0;
+      setVoiceButtons(true);
+      promptEl.textContent = 'Desktop mic ON';
+      subEl.textContent = 'Desktop mic is ON. Speak a command. Click again to turn OFF.';
+      let switchedToBrowserMic = false;
+      while (desktopMicWanted && assistantPowerOn) {
+        if (sendBusy || voiceBusy || speechBusy || readerActive) {
+          await new Promise(r => setTimeout(r, 350));
+          continue;
+        }
+        const captureController = new AbortController();
+        desktopMicAbort = captureController;
+        try {
+          const res = await fetch('/api/listen_once', {method: 'POST', headers: authHeaders(), signal: captureController.signal});
+           const data = await res.json();
+           if (!desktopMicWanted) break;
+           if (!res.ok || !data.ok) throw new Error(data.error || data.message || data.text || 'Desktop mic failed');
+           if (data.kind === 'inactive') {
+             stopAllMic();
+             promptEl.textContent = 'Mic session stopped.';
+             subEl.textContent = data.message || 'Another Nova page owns the microphone. Stop it there, then press Start Voice here.';
+             break;
+           }
+           if (!data.text) {
+             if (data.kind === 'busy') {
+               subEl.textContent = 'Desktop mic is already capturing. Waiting quietly...';
+             } else if (data.kind === 'speech_service_error') {
+               desktopMicWanted = false;
+               abortDesktopMicCapture();
+               releaseVoiceSession();
+               if (SpeechRecognition) {
+                 micWanted = true;
+                 speechNetworkErrors = 0;
+                 switchedToBrowserMic = true;
+                 setVoiceButtons(true);
+                 promptEl.textContent = 'Browser mic fallback';
+                 subEl.textContent = 'Desktop mic hardware is OK, but Python speech recognition is blocked. I switched to Browser Mic. Allow browser microphone if asked.';
+                 add('nova', 'Desktop mic hardware is OK, but Python speech recognition could not reach the speech service. I switched to Browser Mic fallback. If the browser asks, press Allow.');
+                 scheduleRecognitionStart(650);
+                 break;
+               }
+               subEl.textContent = 'Desktop mic hardware is OK, but Python speech recognition is blocked and this browser has no speech fallback. Use typed commands or run ALLOW_NOVA_NETWORK.cmd.';
+               add('nova', data.message || 'Desktop mic speech recognition service failed. Use typed commands or run ALLOW_NOVA_NETWORK.cmd.');
+               break;
+             } else if (data.kind === 'no_speech') {
+               subEl.textContent = 'Listening quietly... speak a command, or click Stop Voice.';
+             } else {
+               subEl.textContent = `${data.message || 'No speech heard.'} Mic is still ON. Click Stop Voice to turn OFF.`;
+             }
+             const retryMs = Math.max(350, Math.min(1800, Number(data.retry_after || 0) * 1000 || (data.kind === 'no_speech' ? 900 : 550)));
+             await new Promise(r => setTimeout(r, retryMs));
+             continue;
+           }
+          subEl.textContent = `Desktop heard: ${data.text}`;
+          await send(data.text, true);
+        } catch (e) {
+          if (!desktopMicWanted) break;
+          if (String(e.name || e).includes('Abort')) {
+            await new Promise(r => setTimeout(r, 120));
+            continue;
+          }
+          desktopMicErrorCount += 1;
+          const message = String(e && e.message || e || '');
+          if (/failed to fetch|load failed|networkerror/i.test(message)) {
+            stopAllMic();
+            promptEl.textContent = 'Mic stopped.';
+            subEl.textContent = 'Nova server connection was lost. I stopped the mic so it will not repeat. Refresh the Nova page, then start voice again.';
+            add('nova', 'Mic stopped because the Nova page lost connection to the local server. Refresh this page once, then press Start Voice again.');
+            break;
+          }
+          subEl.textContent = 'Desktop mic capture had a local issue. I am retrying quietly. Click Stop Voice to turn OFF.';
+          if (desktopMicErrorCount === 1) {
+            // Old message kept here as a comment only:
+            // "Desktop mic had an issue. If Windows shows a microphone permission popup, press Allow."
+            add('nova', `Desktop mic capture issue: ${message || 'local capture failed'}. I will keep listening and retry quietly. If this repeats, say "mic status" or switch to Browser Mic.`);
+          }
+          await new Promise(r => setTimeout(r, Math.min(5000, 900 + desktopMicErrorCount * 350)));
+          continue;
+        } finally {
+          if (desktopMicAbort === captureController) desktopMicAbort = null;
+        }
+      }
+      if (!switchedToBrowserMic) stopAllMic();
+    }
+    function toggleVoice() {
+      // Main Start/Stop button now uses the desktop microphone loop.
+      // This avoids the browser SpeechRecognition network hiccup that kept retrying.
+      if (desktopMicWanted || micWanted) {
+        stopAllMic();
+        promptEl.textContent = 'Voice stopped.';
+        subEl.textContent = 'Mic is OFF. Click Start Voice once to turn ON again.';
+        return;
+      }
+      desktopListen();
+    }
+
+    mic.addEventListener('click', toggleVoice);
+    voiceButton.addEventListener('click', toggleVoice);
+    micSmall.addEventListener('click', toggleVoice);
+    desktopMic.addEventListener('click', desktopListen);
+    composerMenuButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(!composerToolbox.classList.contains('active'));
+    });
+    attachFilesButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      mediaFile.click();
+    });
+    planModeToggle.addEventListener('change', () => {
+      toggleComposerFeature(
+        'plan_mode_enabled',
+        planModeToggle,
+        'Plan mode',
+        'Nova will plan first and will not execute the command.',
+        'pursue_goal_mode_enabled',
+        pursueGoalToggle
+      );
+    });
+    pursueGoalToggle.addEventListener('change', () => {
+      toggleComposerFeature(
+        'pursue_goal_mode_enabled',
+        pursueGoalToggle,
+        'Pursue goal',
+        'Nova will use safe autopilot for clear multi-step goals.',
+        'plan_mode_enabled',
+        planModeToggle
+      );
+    });
+    pluginsButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      openSettingsPanel('Plugins and Nova tools are in Settings.');
+    });
+    permissionsButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      setComposerMenu(false);
+      openSettingsPanel('Default permissions opened. Turn features ON only after approving the popup.');
+    });
+    document.addEventListener('click', (event) => {
+      if (!composerToolbox.classList.contains('active')) return;
+      if (form.contains(event.target)) return;
+      setComposerMenu(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setComposerMenu(false);
+    });
+    powerToggle.addEventListener('click', setPowerFromButton);
+    networkModeToggle.addEventListener('click', requestConnectivityModeChange);
+    chatPageBtn.addEventListener('click', () => setPage('chat'));
+    voicePageBtn.addEventListener('click', () => setPage('voice'));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const value = text.value;
+      send(value);
+      if (value.trim()) text.value = '';
+    });
+    text.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+    text.addEventListener('input', () => {
+      text.style.height = 'auto';
+      text.style.height = Math.min(text.scrollHeight, 190) + 'px';
+    });
+    document.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => send(btn.textContent)));
+    historyToggle.addEventListener('click', toggleHistoryPanel);
+    settingsToggle.addEventListener('click', toggleSettingsPanel);
+    settingsClose.addEventListener('click', () => document.body.classList.remove('settings-open'));
+    clearHistory.addEventListener('click', loadHistory);
+    newChatButton.addEventListener('click', () => {
+      chat.innerHTML = '';
+      send('new chat');
+    });
+    exportChatButton.addEventListener('click', () => send('export chat'));
+    chatHelpButton.addEventListener('click', () => send('chatgpt help'));
+    mediaRun.addEventListener('click', runSmartMediaTask);
+    mediaPrompt.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runSmartMediaTask();
+      }
+    });
+    mediaFile.addEventListener('change', () => {
+      const files = Array.from(mediaFile.files || []);
+      if (files.length === 1) subEl.textContent = `Selected media: ${files[0].name}`;
+      else if (files.length > 1) subEl.textContent = `Selected ${files.length} media files.`;
+    });
+    permissionAllow.addEventListener('click', () => {
+      const command = pendingConfirmCommand;
+      const action = pendingPermissionAction;
+      hidePermissionPopup();
+      if (action) action();
+      else if (command) send(command);
+    });
+    permissionCancel.addEventListener('click', () => {
+      hidePermissionPopup();
+      add('nova', 'Cancelled.');
+      subEl.textContent = 'Permission cancelled.';
+    });
+    permissionClose.addEventListener('click', () => {
+      hidePermissionPopup();
+      subEl.textContent = 'Permission closed.';
+    });
+    permissionModal.addEventListener('click', (event) => {
+      if (event.target === permissionModal) {
+        hidePermissionPopup();
+        subEl.textContent = 'Permission cancelled.';
+      }
+    });
+    unlockButton.addEventListener('click', unlockNova);
+    pinInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') unlockNova();
+    });
+    voiceSelect.addEventListener('change', async () => {
+      await fetch('/api/voice', {
+        method: 'POST',
+        headers: authHeaders({'Content-Type': 'application/json'}),
+        body: JSON.stringify({voice: voiceSelect.value})
+      });
+      backendSpeak(`Voice changed to ${voiceSelect.value || 'default'}.`);
+    });
+    testVoice.addEventListener('click', async () => {
+      if (testVoiceBusy) return;
+      testVoiceBusy = true;
+      testVoice.disabled = true;
+      await backendSpeak('Hello Adarsh. My voice is now in slow and clear English mode.');
+      setTimeout(() => {
+        testVoiceBusy = false;
+        testVoice.disabled = false;
+      }, 2200);
+    });
+    readerPlay.addEventListener('click', pauseResumeReader);
+    readerPrev.addEventListener('click', () => moveReader(-3));
+    readerNext.addEventListener('click', () => moveReader(3));
+    readerStop.addEventListener('click', () => stopReader(true));
+    readerClose.addEventListener('click', () => stopReader(false));
+    readerShuffle.addEventListener('click', () => {
+      if (!readerAudioUrl) return;
+      readerAudio.currentTime = 0;
+      updateReader();
+      if (!readerActive) playReaderAudio();
+    });
+    readerProgress.addEventListener('input', () => {
+      if (!readerAudioUrl) return;
+      readerAudio.currentTime = Number(readerProgress.value || 0);
+      updateReader();
+    });
+    setupRecognition();
+    refreshApiStatus();
+    loadVoices();
+    loadHistory();
+    loadFeatureSettings();
+  </script>
+</body>
+</html>
+

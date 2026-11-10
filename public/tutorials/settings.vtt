@@ -1,0 +1,28 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:05.129
+Sign in with the account that owns the website and open Settings.
+
+00:00:05.129 --> 00:00:08.900
+Review the account and selected site before changing anything.
+
+00:00:08.900 --> 00:00:17.281
+Timezone changes affect how daily report periods are grouped; do not change the domain unless you control the replacement domain.
+
+00:00:17.481 --> 00:00:23.247
+Choose the API tab to create a scoped revenue key for a particular site.
+
+00:00:23.247 --> 00:00:28.601
+The secret is shown once, so save it in the website server environment.
+
+00:00:28.601 --> 00:00:34.778
+A rotated key immediately stops accepting the old one; update integrations at the same time.
+
+00:00:34.978 --> 00:00:39.759
+The More tab links to help, privacy, and billing information.
+
+00:00:39.759 --> 00:00:44.062
+Read retention and location notes before enabling optional collection.
+
+00:00:44.062 --> 00:00:52.190
+Settings are private to the signed-in owner; do not share screenshots that show account details or tokens.

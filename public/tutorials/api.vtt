@@ -1,0 +1,31 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:05.865
+Open API settings while signed in and select the website that will send confirmed revenue.
+
+00:00:05.865 --> 00:00:10.092
+Create a key only for the permission and site you need.
+
+00:00:10.092 --> 00:00:16.242
+The key can submit events for its assigned site, not read a customer's other website reports.
+
+00:00:16.442 --> 00:00:22.145
+Copy the secret once into the server environment that processes provider webhooks.
+
+00:00:22.145 --> 00:00:29.749
+Never put it in browser JavaScript, HTML, a public repository, analytics URL, or customer support chat.
+
+00:00:29.749 --> 00:00:36.878
+If it appears in a screenshot or log, rotate it and replace the server value.
+
+00:00:37.078 --> 00:00:41.750
+Send an event only after your payment provider confirms it.
+
+00:00:41.750 --> 00:00:46.423
+Use a unique event identifier so retries cannot duplicate revenue.
+
+00:00:46.423 --> 00:00:51.096
+Check the response status, then review the matching website report.
+
+00:00:51.096 --> 00:00:55.769
+A read-only analytics token cannot replace the site revenue key.

@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:04.159
+RankLens analytics does not request a browser location permission.
+
+00:00:04.159 --> 00:00:09.120
+It does not record GPS coordinates or follow a person's movement.
+
+00:00:09.120 --> 00:00:18.591
+If someone sees a location permission prompt, it belongs to another browser feature and is not required for these analytics reports.
+
+00:00:18.791 --> 00:00:25.178
+Country totals can appear only when the trusted hosting proxy supplies a valid country code.
+
+00:00:25.178 --> 00:00:34.120
+The server stores an aggregate country value, not a raw visitor IP; it does not infer a city or exact address.
+
+00:00:34.120 --> 00:00:37.527
+Unknown means geo headers are unavailable or untrusted.
+
+00:00:37.727 --> 00:00:45.340
+Review the retention period shown for each event type and do not share private reports or API secrets publicly.
+
+00:00:45.340 --> 00:00:53.354
+RankBid's optional location sharing is a separate one-time feature with its own notice; it is not needed to use RankLens.

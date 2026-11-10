@@ -1,0 +1,48 @@
+{
+  "name": "rankbid",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "tsx tests/engine.test.ts && tsx tests/admin-accounts.test.ts && tsx tests/stripe-recipient.test.ts && tsx tests/stripe-connect.test.ts && tsx tests/stripe-event-ledger.test.ts && tsx tests/stripe-order.test.ts && tsx tests/google-oauth.test.ts && tsx tests/ranking-parity.test.ts && tsx tests/analytics.test.ts && tsx tests/stripe-http.test.ts && tsx tests/razorpay.test.ts && tsx tests/razorpay-http.test.ts && tsx tests/checkout-pricing.test.ts && tsx tests/public-views.test.ts && tsx tests/public-activity.test.ts && tsx tests/public-activity-http.test.ts && tsx tests/analytics-range.test.ts && tsx tests/analytics-geo.test.ts && tsx tests/analytics-sites.test.ts && tsx tests/member-presence.test.ts && tsx tests/analytics-location.test.ts",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test:drive-backup": "node tests/drive-backup.test.cjs",
+    "setup:admin": "tsx scripts/setup-admin.ts"
+  },
+  "dependencies": {
+    "@types/node": "^24.3.0",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "autoprefixer": "^10.4.19",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "lucide-react": "^0.378.0",
+    "maplibre-gl": "6.16.0",
+    "next": "15.5.28",
+    "next-themes": "^0.2.1",
+    "postcss": "8.5.32",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.12.7",
+    "stripe": "23.1.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "15.5.28",
+    "tsx": "4.23.15"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "overrides": {
+    "postcss": "$postcss"
+  }
+}
+

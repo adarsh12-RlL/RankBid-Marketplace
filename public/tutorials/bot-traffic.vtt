@@ -1,0 +1,31 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:03.944
+Bot traffic reporting is a separate feature from core analytics.
+
+00:00:03.944 --> 00:00:08.940
+The owner grants it to an account only after verifying its plan payment.
+
+00:00:08.940 --> 00:00:17.781
+An administrator can see the setup screen; a customer without active access should not be able to create or view a bot report.
+
+00:00:17.981 --> 00:00:24.981
+For an authorized site, create its bot token and copy it once into that site's server environment.
+
+00:00:24.981 --> 00:00:29.921
+The token must never appear in frontend code or the public page.
+
+00:00:29.921 --> 00:00:34.862
+If it is exposed, rotate it immediately and update your server middleware.
+
+00:00:35.062 --> 00:00:40.125
+Server middleware can send recognized crawler requests to the bot endpoint.
+
+00:00:40.125 --> 00:00:43.347
+Browser visitors are not counted as bots.
+
+00:00:43.347 --> 00:00:51.170
+The report describes observed requests, not an endorsement or proof that an AI system used your content.
+
+00:00:51.170 --> 00:00:55.773
+Check verification status and the event time before drawing conclusions.

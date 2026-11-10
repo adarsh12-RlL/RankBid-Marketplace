@@ -1,0 +1,31 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:06.162
+This form collects a product submission and shows only payment methods configured by the owner.
+
+00:00:06.162 --> 00:00:12.223
+In a local test environment, the checkout is a simulation and no real money moves.
+
+00:00:12.223 --> 00:00:20.306
+For a live payment, verify the amount and currency before continuing and complete checkout on the payment provider's secure page.
+
+00:00:20.506 --> 00:00:25.666
+A return or success page is not proof that funds were captured.
+
+00:00:25.666 --> 00:00:31.256
+The server must verify the signed provider webhook and retrieve the payment status.
+
+00:00:31.256 --> 00:00:35.557
+Only a completed, verified capture is eligible for revenue attribution.
+
+00:00:35.557 --> 00:00:38.997
+Keep the provider secret key on the server.
+
+00:00:39.197 --> 00:00:46.178
+When a provider confirms a refund, send the matching refund event with a unique event identifier.
+
+00:00:46.178 --> 00:00:52.286
+RankLens links it to the original capture and prevents duplicate identifiers from inflating totals.
+
+00:00:52.286 --> 00:00:59.267
+If the report does not match the provider, compare the event ID, currency, and refund amount.

@@ -1,0 +1,43 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:02.734
+This is the public RankLens home.
+
+00:00:02.734 --> 00:00:05.807
+Read the feature and privacy sections first.
+
+00:00:05.807 --> 00:00:11.952
+Choose Log in for the private website list, or Add website to begin setup.
+
+00:00:11.952 --> 00:00:16.342
+The public analytics preview is separate from your private account.
+
+00:00:16.542 --> 00:00:19.103
+After signing in, open Add website.
+
+00:00:19.103 --> 00:00:25.934
+Enter a domain that you own, then choose the timezone that should define each report day.
+
+00:00:25.934 --> 00:00:31.484
+Review the domain before submitting; a site is created for this account only.
+
+00:00:31.684 --> 00:00:38.238
+Copy the unique tracking script shown for that site and add it to your website's shared head section.
+
+00:00:38.238 --> 00:00:45.520
+Visit a page on that domain yourself, wait for the request to finish, then return to its report and refresh.
+
+00:00:45.520 --> 00:00:49.526
+A blank chart is normal until a real page view arrives.
+
+00:00:49.726 --> 00:00:51.544
+Revenue attribution is optional.
+
+00:00:51.544 --> 00:00:56.546
+First let Stripe, Razorpay, or your provider confirm a captured payment.
+
+00:00:56.546 --> 00:01:02.911
+Only then send the matching event from your server using a private site key.
+
+00:01:02.911 --> 00:01:09.732
+Send refunds as separate verified events; never claim success based only on a browser redirect.

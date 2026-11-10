@@ -1,0 +1,28 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:06.624
+The current local RankBid installation includes core RankLens analytics without a recurring subscription checkout.
+
+00:00:06.624 --> 00:00:14.547
+The billing view shows available access information; it does not take card details or create an invoice.
+
+00:00:14.747 --> 00:00:17.555
+Bot traffic is a separate paid-access feature.
+
+00:00:17.555 --> 00:00:23.573
+In this build the owner verifies a customer's payment and enables the entitlement in admin.
+
+00:00:23.573 --> 00:00:28.387
+Do not assume an account has access until its status is active.
+
+00:00:28.387 --> 00:00:32.398
+The local build does not create a recurring billing charge.
+
+00:00:32.598 --> 00:00:37.437
+A payment for a RankBid placement is not a RankLens subscription.
+
+00:00:37.437 --> 00:00:41.836
+Provider receipts and bank settlement remain in the gateway account.
+
+00:00:41.836 --> 00:00:50.195
+Never label sandbox activity as a live payment; check the test-mode notice before using a screenshot or report externally.
